@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chronic Space Test</title>
+<style>
+    body {
+        margin: 0;
+        background: black;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+    }
+
+    /* STARFIELD BACKGROUND */
+    .stars {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: transparent;
+    }
+
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        opacity: 0.8;
+        border-radius: 50%;
+        animation: twinkle 2s infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+        0% { opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { opacity: 0.2; }
+    }
+
+    /* BANNER CONTAINER */
+    #banner {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        z-index: 10;
+    }
+
+    #banner img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transform: translateX(50px) scale(1.05);
+        transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    #banner img.active {
+        opacity: 1;
+        transform: translateX(0px) scale(1);
+    }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div id="banner">
+    <img src="images/BANNER1.jpeg">
+    <img src="images/BANNER2.jpeg">
+    <img src="images/BANNER3.jpeg">
+    <img src="images/BANNER4.jpeg">
+    <img src="images/BANNER5.jpeg">
+    <img src="images/BANNER6.jpeg">
+    <img src="images/BANNER7.jpeg">
+</div>
+
+<script>
+    /* STARFIELD GENERATION */
+    const starContainer = document.getElementById("stars");
+    for (let i = 0; i < 150; i++) {
+        let s = document.createElement("div");
+        s.className = "star";
+        s.style.top = Math.random() * 100 + "%";
+        s.style.left = Math.random() * 100 + "%";
+        s.style.animationDelay = Math.random() * 2 + "s";
+        starContainer.appendChild(s);
+    }
+
+    /* BANNER ROTATION */
+    const banners = document.querySelectorAll("#banner img");
+    let current = 0;
+
+    function showBanner() {
+        banners.forEach((b, i) => b.classList.remove("active"));
+        banners[current].classList.add("active");
+        current = (current + 1) % banners.length;
+    }
+
+    showBanner();
+    setInterval(showBanner, 5000); // change every 5 seconds
+</script>
+
+</body>
+</html>
 
