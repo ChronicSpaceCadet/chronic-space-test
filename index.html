@@ -8,46 +8,89 @@
         --accent: #4a9eff;
         --radius: 12px;
         --shadow: 20px;
-        --glow: 0;
+        --glow: 0px;
         --layout-width: 900px;
+        --star-color: #ffffff;
+        --particle-color: cyan;
     }
 
+    /* CONTROLLER (hidden by default, toggled by the tool button) */
     .controller {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: #000;
+        background: rgba(0,0,0,0.9);
         padding: 20px;
-        border-radius: 10px;
-        width: 260px;
+        border-radius: var(--radius);
+        width: 300px;
         z-index: 999;
-        box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
-        border: 1px solid #333;
+        box-shadow: 0 0 var(--shadow) rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.06);
+        transform: translateX(340px); /* hide off-screen */
+        transition: transform 280ms ease;
+        backdrop-filter: blur(6px);
+    }
+
+    .controller.open {
+        transform: translateX(0);
     }
 
     .controller label {
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 5px;
         display: block;
+        color: var(--text);
     }
 
     .controller input[type="range"],
-    .controller input[type="color"] {
+    .controller input[type="color"],
+    .controller select,
+    .controller button {
         width: 100%;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
-</style>
+
+    .controller .row { display:flex; gap:8px; }
+    .controller .row > * { flex:1; }
+
+    /* Controller toggle button (tool icon) */
+    #controllerToggle {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), #7fb8ff);
+        color: black;
+        border: none;
+        z-index: 1000;
+        cursor: pointer;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    #controllerToggle:focus { outline: 3px solid rgba(74,158,255,0.35); }
+
+    /* small accessibility hint */
+    .sr-only { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+ </style>
    
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chronic Space Cosmic Engine</title>
 
 <style>
+    /* Use CSS variables so the controller can change the look */
     body {
         margin: 0;
-        background: radial-gradient(circle at center, #0a0a0a, #000000 70%);
+        background: radial-gradient(circle at center, var(--bg), #000000 70%);
         overflow-x: hidden;
         font-family: Arial, sans-serif;
-        color: white;
+        color: var(--text);
     }
 
     /* PARALLAX STARFIELD */
@@ -65,7 +108,7 @@
         position: absolute;
         width: 2px;
         height: 2px;
-        background: white;
+        background: var(--star-color);
         opacity: 0.8;
         border-radius: 50%;
         animation: twinkle 2s infinite ease-in-out;
@@ -82,7 +125,7 @@
         position: absolute;
         width: 3px;
         height: 3px;
-        background: cyan;
+        background: var(--particle-color);
         opacity: 0.4;
         border-radius: 50%;
         animation: rise 6s linear infinite;
@@ -97,7 +140,8 @@
     #banner {
         position: relative;
         width: 100%;
-        height: 550px;
+        height: 55vh;
+        min-height: 320px;
         overflow: hidden;
         z-index: 10;
         margin-top: 40px;
@@ -113,55 +157,16 @@
         filter: drop-shadow(0px 0px 15px rgba(0,255,255,0.4));
     }
 
-    #banner img.active {
-        opacity: 1;
-    }
+    #banner img.active { opacity: 1; }
 
     /* COSMIC ANIMATIONS */
-    @keyframes shimmer {
-        0% { filter: brightness(1); }
-        50% { filter: brightness(1.4); }
-        100% { filter: brightness(1); }
-    }
-
-    @keyframes drift {
-        0% { transform: scale(1) rotate(0deg); }
-        50% { transform: scale(1.03) rotate(1deg); }
-        100% { transform: scale(1) rotate(0deg); }
-    }
-
-    @keyframes pulse {
-        0% { filter: drop-shadow(0px 0px 10px cyan); }
-        50% { filter: drop-shadow(0px 0px 25px cyan); }
-        100% { filter: drop-shadow(0px 0px 10px cyan); }
-    }
-
-    @keyframes wave {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-12px); }
-        100% { transform: translateY(0px); }
-    }
-
-    @keyframes warp {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-
-    @keyframes glitch {
-        0% { transform: translateX(0px); }
-        20% { transform: translateX(-3px); }
-        40% { transform: translateX(3px); }
-        60% { transform: translateX(-2px); }
-        80% { transform: translateX(2px); }
-        100% { transform: translateX(0px); }
-    }
-
-    @keyframes smoke {
-        0% { opacity: 0.1; transform: translateX(0px); }
-        50% { opacity: 0.25; transform: translateX(20px); }
-        100% { opacity: 0.1; transform: translateX(0px); }
-    }
+    @keyframes shimmer { 0% { filter: brightness(1); } 50% { filter: brightness(1.4); } 100% { filter: brightness(1); } }
+    @keyframes drift { 0% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.03) rotate(1deg); } 100% { transform: scale(1) rotate(0deg); } }
+    @keyframes pulse { 0% { filter: drop-shadow(0px 0px 10px var(--particle-color)); } 50% { filter: drop-shadow(0px 0px 25px var(--particle-color)); } 100% { filter: drop-shadow(0px 0px 10px var(--particle-color)); } }
+    @keyframes wave { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
+    @keyframes warp { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes glitch { 0% { transform: translateX(0px); } 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } 100% { transform: translateX(0px); } }
+    @keyframes smoke { 0% { opacity: 0.1; transform: translateX(0px); } 50% { opacity: 0.25; transform: translateX(20px); } 100% { opacity: 0.1; transform: translateX(0px); } }
 
     .smoke {
         position: absolute;
@@ -169,7 +174,7 @@
         height: 100%;
         background: url('https://i.imgur.com/8fK4h7R.png');
         background-size: cover;
-        opacity: 0.15;
+        opacity: 0.12;
         animation: smoke 12s infinite linear;
         z-index: 5;
         pointer-events: none;
@@ -183,156 +188,124 @@
         width: 180px;
         height: auto;
         z-index: 999;
-        filter: drop-shadow(0px 0px 15px cyan);
+        filter: drop-shadow(0px 0px 15px var(--particle-color));
         cursor: pointer;
         transition: transform 1s ease, top 1s ease, left 1s ease;
         animation: spinForever 3s linear infinite;
     }
 
-    @keyframes spinForever {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
+    @keyframes spinForever { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     /* FOUNDER MODAL BACKDROP */
-    #founderModal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.85);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 2000;
-    }
+    #founderModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 2000; }
 
     /* TAROT-STYLE CARD */
     #founderCard {
         width: 350px;
         background: linear-gradient(180deg, #0a0a0a, #111, #0a0a0a);
-        border: 3px solid cyan;
-        border-radius: 18px;
+        border: 3px solid var(--accent);
+        border-radius: var(--radius);
         padding: 20px;
         text-align: center;
-        box-shadow: 0px 0px 25px cyan;
+        box-shadow: 0 0 calc(var(--shadow) * 1px) var(--accent);
         animation: cardReveal 0.8s ease;
     }
 
-    @keyframes cardReveal {
-        0% { transform: scale(0.4); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-    }
+    @keyframes cardReveal { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .founderImage {
-        width: 100%;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        box-shadow: 0px 0px 20px cyan;
-    }
+    .founderImage { width: 100%; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 0 20px var(--accent); }
 
     /* SOCIAL ICONS */
-    .socialRow {
-        display: flex;
-        justify-content: space-around;
-        margin: 20px 0;
-    }
-
-    .socialIcon {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        font-size: 22px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        color: white;
-        font-weight: bold;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .socialIcon:hover {
-        transform: scale(1.2);
-        box-shadow: 0px 0px 15px cyan;
-    }
-
+    .socialRow { display: flex; justify-content: space-around; margin: 20px 0; }
+    .socialIcon { width: 45px; height: 45px; border-radius: 50%; font-size: 22px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: white; font-weight: bold; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .socialIcon:hover { transform: scale(1.2); box-shadow: 0 0 calc(var(--glow) * 1px) var(--accent); }
     .fb { background: #1877f2; }
     .yt { background: #ff0000; }
     .x  { background: #000000; }
     .li { background: #0a66c2; }
 
     /* CLOSE BUTTON */
-    #closeFounder {
-        background: cyan;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        color: black;
-        transition: background 0.3s ease;
-    }
+    #closeFounder { background: var(--accent); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; color: black; transition: background 0.3s ease; }
+    #closeFounder:hover { background: white; }
 
-    #closeFounder:hover {
-        background: white;
-    }
+    /* Responsive tweaks */
+    @media (max-width: 600px) { #banner { height: 45vh; } .controller { width: 260px; } }
+
 </style>
 </head>
 <body>
-<div class="controller">
-    <label>Background Color</label>
+<!-- Controller toggle button -->
+<button id="controllerToggle" aria-controls="styleController" aria-expanded="false" title="Open style controller">🎛</button>
+<div class="controller" id="styleController" role="region" aria-label="Style controller">
+    <div class="sr-only">Style controller</div>
+    <label for="bg">Background Color</label>
     <input id="bg" type="color" value="#111111">
 
-    <label>Text Color</label>
+    <label for="text">Text Color</label>
     <input id="text" type="color" value="#ffffff">
 
-    <label>Accent Color</label>
+    <label for="accent">Accent Color</label>
     <input id="accent" type="color" value="#4a9eff">
 
-    <label>Corner Radius</label>
+    <label for="radius">Corner Radius</label>
     <input id="radius" type="range" min="0" max="40" value="12">
 
-    <label>Shadow Strength</label>
+    <label for="shadow">Shadow Strength</label>
     <input id="shadow" type="range" min="0" max="60" value="20">
 
-    <label>Glow</label>
+    <label for="glow">Glow</label>
     <input id="glow" type="range" min="0" max="40" value="0">
 
-    <label>Layout Width</label>
+    <label for="layoutWidth">Layout Width</label>
     <input id="layoutWidth" type="range" min="600" max="1400" value="900">
+
+    <label for="starDensity">Star Density</label>
+    <input id="starDensity" type="range" min="20" max="400" value="150">
+
+    <label for="particleDensity">Particle Density</label>
+    <input id="particleDensity" type="range" min="0" max="200" value="60">
+
+    <div class="row">
+        <button id="saveTheme">Save</button>
+        <button id="resetTheme">Reset</button>
+    </div>
+
+    <div class="row">
+        <button id="exportTheme">Export</button>
+        <button id="importTheme">Import</button>
+    </div>
+    <input id="importData" class="sr-only" type="file" accept="application/json">
 </div>
 
 <div class="stars" id="stars"></div>
 <div id="particles"></div>
 
 <div id="banner">
-    <div class="smoke"></div>
+    <div class="smoke" aria-hidden="true"></div>
 
-    <img src="images/BANNER1.jpeg">
-    <img src="images/BANNER2.jpeg">
-    <img src="images/BANNER3.jpeg">
-    <img src="images/BANNER4.jpeg">
-    <img src="images/BANNER5.jpeg">
-    <img src="images/BANNER6.jpeg">
-    <img src="images/BANNER7.jpeg">
+    <img src="images/BANNER1.jpeg" alt="Banner 1" loading="lazy">
+    <img src="images/BANNER2.jpeg" alt="Banner 2" loading="lazy">
+    <img src="images/BANNER3.jpeg" alt="Banner 3" loading="lazy">
+    <img src="images/BANNER4.jpeg" alt="Banner 4" loading="lazy">
+    <img src="images/BANNER5.jpeg" alt="Banner 5" loading="lazy">
+    <img src="images/BANNER6.jpeg" alt="Banner 6" loading="lazy">
+    <img src="images/BANNER7.jpeg" alt="Banner 7" loading="lazy">
 </div>
 
 <!-- MECARD + FOUNDER CARD -->
-<img id="mecard" src="images/MECARD.png">
+<img id="mecard" src="images/MECARD.png" alt="Mecard" loading="lazy">
 
-<div id="founderModal">
+<div id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderTitle">
     <div id="founderCard">
-        <img src="images/MECARD.png" class="founderImage">
+        <img src="images/MECARD.png" class="founderImage" alt="Founder">
 
-        <h2>CHRONIC SPACE FOUNDER</h2>
+        <h2 id="founderTitle">CHRONIC SPACE FOUNDER</h2>
 
         <div class="socialRow">
-            <div class="socialIcon fb" onclick="window.open('https://www.facebook.com/chroniccody','_blank')">f</div>
-            <div class="socialIcon yt" onclick="window.open('https://www.youtube.com/@ChronicSpace','_blank')">▶</div>
-            <div class="socialIcon x" onclick="window.open('https://x.com/AmaBurnSpace','_blank')">X</div>
-            <div class="socialIcon li" onclick="window.open('https://www.linkedin.com/in/founderchronicspace/','_blank')">in</div>
+            <div class="socialIcon fb" onclick="window.open('https://www.facebook.com/chroniccody','_blank')" aria-label="Facebook">f</div>
+            <div class="socialIcon yt" onclick="window.open('https://www.youtube.com/@ChronicSpace','_blank')" aria-label="YouTube">▶</div>
+            <div class="socialIcon x" onclick="window.open('https://x.com/AmaBurnSpace','_blank')" aria-label="X">X</div>
+            <div class="socialIcon li" onclick="window.open('https://www.linkedin.com/in/founderchronicspace/','_blank')" aria-label="LinkedIn">in</div>
         </div>
 
         <button id="closeFounder">CLOSE</button>
@@ -342,24 +315,30 @@
 <script>
     /* STARFIELD */
     const starContainer = document.getElementById("stars");
-    for (let i = 0; i < 150; i++) {
-        let s = document.createElement("div");
-        s.className = "star";
-        s.style.top = Math.random() * 100 + "%";
-        s.style.left = Math.random() * 100 + "%";
-        s.style.animationDelay = Math.random() * 2 + "s";
-        starContainer.appendChild(s);
+    function makeStars(count) {
+        starContainer.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            let s = document.createElement("div");
+            s.className = "star";
+            s.style.top = Math.random() * 100 + "%";
+            s.style.left = Math.random() * 100 + "%";
+            s.style.animationDelay = Math.random() * 2 + "s";
+            starContainer.appendChild(s);
+        }
     }
 
     /* PARTICLES */
     const particleContainer = document.getElementById("particles");
-    for (let i = 0; i < 60; i++) {
-        let p = document.createElement("div");
-        p.className = "particle";
-        p.style.top = Math.random() * 100 + "%";
-        p.style.left = Math.random() * 100 + "%";
-        p.style.animationDelay = Math.random() * 6 + "s";
-        particleContainer.appendChild(p);
+    function makeParticles(count) {
+        particleContainer.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            let p = document.createElement("div");
+            p.className = "particle";
+            p.style.top = Math.random() * 100 + "%";
+            p.style.left = Math.random() * 100 + "%";
+            p.style.animationDelay = Math.random() * 6 + "s";
+            particleContainer.appendChild(p);
+        }
     }
 
     /* RANDOMIZED BANNER ANIMATIONS */
@@ -382,6 +361,7 @@
         });
 
         const banner = banners[current];
+        if (!banner) return;
         banner.classList.add("active");
 
         const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
@@ -396,6 +376,7 @@
     /* RANDOM FLOATING PATH FOR MECARD */
     const mecard = document.getElementById("mecard");
     let floating = true;
+    let floatTimer;
 
     function randomFloat() {
         if (!floating) return;
@@ -406,7 +387,7 @@
         mecard.style.top = randTop + "%";
         mecard.style.left = randLeft + "%";
 
-        setTimeout(randomFloat, 2000);
+        floatTimer = setTimeout(randomFloat, 2000);
     }
 
     randomFloat();
@@ -414,16 +395,18 @@
     /* CLICK TO FREEZE + ZOOM + OPEN MENU */
     mecard.addEventListener("click", () => {
         floating = false;
+        clearTimeout(floatTimer);
 
         mecard.style.transition = "transform 1s ease, top 1s ease, left 1s ease";
         mecard.style.top = "50%";
         mecard.style.left = "50%";
-        mecard.style.transform = "translate(-50%, -50%) scale(1.3) rotate(0deg)";
+        mecard.style.transform = "translate(-50%, -50%) scale(1.35) rotate(0deg)";
         mecard.style.zIndex = "2001";
 
         setTimeout(() => {
             document.getElementById("founderModal").style.display = "flex";
-        }, 900);
+            document.getElementById("closeFounder").focus();
+        }, 600);
     });
 
     /* CLOSE MENU + RETURN TO CHAOS */
@@ -434,21 +417,193 @@
         floating = true;
         randomFloat();
     });
-</script>
-<script>
+
+    /* CONTROLLER LOGIC */
     const root = document.documentElement;
 
-    document.getElementById("bg").oninput = e => root.style.setProperty("--bg", e.target.value);
-    document.getElementById("text").oninput = e => root.style.setProperty("--text", e.target.value);
-    document.getElementById("accent").oninput = e => root.style.setProperty("--accent", e.target.value);
-    document.getElementById("radius").oninput = e => root.style.setProperty("--radius", e.target.value + "px");
-    document.getElementById("shadow").oninput = e => root.style.setProperty("--shadow", e.target.value + "px");
-    document.getElementById("glow").oninput = e => root.style.setProperty("--glow", e.target.value + "px");
-    document.getElementById("layoutWidth").oninput = e => root.style.setProperty("--layout-width", e.target.value + "px");
+    const controls = {
+        bg: document.getElementById('bg'),
+        text: document.getElementById('text'),
+        accent: document.getElementById('accent'),
+        radius: document.getElementById('radius'),
+        shadow: document.getElementById('shadow'),
+        glow: document.getElementById('glow'),
+        layoutWidth: document.getElementById('layoutWidth'),
+        starDensity: document.getElementById('starDensity'),
+        particleDensity: document.getElementById('particleDensity'),
+    };
+
+    // Apply a settings object to the CSS variables and UI
+    function applySettings(s) {
+        if (!s) return;
+        if (s.bg) root.style.setProperty('--bg', s.bg);
+        if (s.text) root.style.setProperty('--text', s.text);
+        if (s.accent) root.style.setProperty('--accent', s.accent);
+        if (typeof s.radius !== 'undefined') root.style.setProperty('--radius', s.radius + 'px');
+        if (typeof s.shadow !== 'undefined') root.style.setProperty('--shadow', s.shadow + 'px');
+        if (typeof s.glow !== 'undefined') root.style.setProperty('--glow', s.glow + 'px');
+        if (typeof s.layoutWidth !== 'undefined') root.style.setProperty('--layout-width', s.layoutWidth + 'px');
+        if (s.starColor) root.style.setProperty('--star-color', s.starColor);
+        if (s.particleColor) root.style.setProperty('--particle-color', s.particleColor);
+
+        // Update UI inputs to match
+        if (controls.bg && s.bg) controls.bg.value = s.bg;
+        if (controls.text && s.text) controls.text.value = s.text;
+        if (controls.accent && s.accent) controls.accent.value = s.accent;
+        if (controls.radius && typeof s.radius !== 'undefined') controls.radius.value = s.radius;
+        if (controls.shadow && typeof s.shadow !== 'undefined') controls.shadow.value = s.shadow;
+        if (controls.glow && typeof s.glow !== 'undefined') controls.glow.value = s.glow;
+        if (controls.layoutWidth && typeof s.layoutWidth !== 'undefined') controls.layoutWidth.value = s.layoutWidth;
+        if (controls.starDensity && typeof s.starDensity !== 'undefined') controls.starDensity.value = s.starDensity;
+        if (controls.particleDensity && typeof s.particleDensity !== 'undefined') controls.particleDensity.value = s.particleDensity;
+    }
+
+    function readUI() {
+        return {
+            bg: controls.bg.value,
+            text: controls.text.value,
+            accent: controls.accent.value,
+            radius: parseInt(controls.radius.value,10),
+            shadow: parseInt(controls.shadow.value,10),
+            glow: parseInt(controls.glow.value,10),
+            layoutWidth: parseInt(controls.layoutWidth.value,10),
+            starDensity: parseInt(controls.starDensity.value,10),
+            particleDensity: parseInt(controls.particleDensity.value,10),
+            starColor: getComputedStyle(root).getPropertyValue('--star-color').trim(),
+            particleColor: getComputedStyle(root).getPropertyValue('--particle-color').trim(),
+        };
+    }
+
+    // Persist to localStorage
+    function saveTheme() {
+        const data = readUI();
+        localStorage.setItem('chronicTheme', JSON.stringify(data));
+        alert('Theme saved locally');
+    }
+
+    function loadTheme() {
+        const raw = localStorage.getItem('chronicTheme');
+        if (!raw) return null;
+        try { return JSON.parse(raw); } catch(e) { return null; }
+    }
+
+    function resetTheme() {
+        const defaults = { bg: '#111111', text:'#ffffff', accent:'#4a9eff', radius:12, shadow:20, glow:0, layoutWidth:900, starDensity:150, particleDensity:60 };
+        applySettings(defaults);
+        makeStars(defaults.starDensity);
+        makeParticles(defaults.particleDensity);
+        localStorage.removeItem('chronicTheme');
+    }
+
+    // Wire up inputs
+    Object.keys(controls).forEach(key => {
+        const el = controls[key];
+        if (!el) return;
+        el.addEventListener('input', () => {
+            const v = el.value;
+            switch(key){
+                case 'bg': root.style.setProperty('--bg', v); break;
+                case 'text': root.style.setProperty('--text', v); break;
+                case 'accent': root.style.setProperty('--accent', v); break;
+                case 'radius': root.style.setProperty('--radius', v + 'px'); break;
+                case 'shadow': root.style.setProperty('--shadow', v + 'px'); break;
+                case 'glow': root.style.setProperty('--glow', v + 'px'); break;
+                case 'layoutWidth': root.style.setProperty('--layout-width', v + 'px'); break;
+                case 'starDensity': makeStars(parseInt(v,10)); break;
+                case 'particleDensity': makeParticles(parseInt(v,10)); break;
+            }
+            // live-preview: keep star/particle colors consistent
+        });
+    });
+
+    document.getElementById('saveTheme').addEventListener('click', saveTheme);
+    document.getElementById('resetTheme').addEventListener('click', resetTheme);
+
+    // Export / import simple JSON
+    document.getElementById('exportTheme').addEventListener('click', ()=>{
+        const data = readUI();
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'chronic-theme.json';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('importTheme').addEventListener('click', ()=>{
+        document.getElementById('importData').click();
+    });
+
+    document.getElementById('importData').addEventListener('change', (e)=>{
+        const f = e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = () => {
+            try {
+                const obj = JSON.parse(r.result);
+                applySettings(obj);
+                if (obj.starDensity) makeStars(obj.starDensity);
+                if (obj.particleDensity) makeParticles(obj.particleDensity);
+                alert('Imported theme applied');
+            } catch(err){ alert('Invalid theme file'); }
+        };
+        r.readAsText(f);
+    });
+
+    // Toggle controller with the tool button
+    const toggle = document.getElementById('controllerToggle');
+    const controller = document.getElementById('styleController');
+    toggle.addEventListener('click', ()=>{
+        const open = controller.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) {
+            // move focus into controller for keyboard users
+            controller.querySelector('input, button, select').focus();
+        } else {
+            toggle.focus();
+        }
+    });
+
+    // Close panel with Escape
+    document.addEventListener('keydown', (e)=>{
+        if (e.key === 'Escape') {
+            if (controller.classList.contains('open')) { controller.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); toggle.focus(); }
+            if (document.getElementById('founderModal').style.display === 'flex') { document.getElementById('founderModal').style.display = 'none'; mecard.style.transform='scale(1)'; floating=true; randomFloat(); }
+        }
+    });
+
+    // initialize from saved theme or inputs
+    (function init(){
+        const saved = loadTheme();
+        if (saved) {
+            applySettings(saved);
+            makeStars(saved.starDensity || 150);
+            makeParticles(saved.particleDensity || 60);
+        } else {
+            // apply defaults from UI values
+            applySettings({
+                bg: controls.bg.value,
+                text: controls.text.value,
+                accent: controls.accent.value,
+                radius: parseInt(controls.radius.value,10),
+                shadow: parseInt(controls.shadow.value,10),
+                glow: parseInt(controls.glow.value,10),
+                layoutWidth: parseInt(controls.layoutWidth.value,10),
+                starDensity: parseInt(controls.starDensity.value,10),
+                particleDensity: parseInt(controls.particleDensity.value,10),
+            });
+            makeStars(parseInt(controls.starDensity.value,10));
+            makeParticles(parseInt(controls.particleDensity.value,10));
+        }
+    })();
+
+    // small tweak: respect prefers-reduced-motion
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (media.matches) {
+        document.querySelectorAll('*').forEach(el=>el.style.animation = 'none');
+    }
+
 </script>
 
 </body>
 </html>
-
-
-
