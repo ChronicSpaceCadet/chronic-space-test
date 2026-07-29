@@ -1,6 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+ <style>
+    :root {
+        --bg: #111;
+        --text: #fff;
+        --accent: #4a9eff;
+        --radius: 12px;
+        --shadow: 20px;
+        --glow: 0;
+        --layout-width: 900px;
+    }
+
+    .controller {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #000;
+        padding: 20px;
+        border-radius: 10px;
+        width: 260px;
+        z-index: 999;
+        box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
+        border: 1px solid #333;
+    }
+
+    .controller label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .controller input[type="range"],
+    .controller input[type="color"] {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+</style>
+   
 <meta charset="UTF-8">
 <title>Chronic Space Cosmic Engine</title>
 
@@ -244,6 +281,28 @@
 </style>
 </head>
 <body>
+<div class="controller">
+    <label>Background Color</label>
+    <input id="bg" type="color" value="#111111">
+
+    <label>Text Color</label>
+    <input id="text" type="color" value="#ffffff">
+
+    <label>Accent Color</label>
+    <input id="accent" type="color" value="#4a9eff">
+
+    <label>Corner Radius</label>
+    <input id="radius" type="range" min="0" max="40" value="12">
+
+    <label>Shadow Strength</label>
+    <input id="shadow" type="range" min="0" max="60" value="20">
+
+    <label>Glow</label>
+    <input id="glow" type="range" min="0" max="40" value="0">
+
+    <label>Layout Width</label>
+    <input id="layoutWidth" type="range" min="600" max="1400" value="900">
+</div>
 
 <div class="stars" id="stars"></div>
 <div id="particles"></div>
@@ -375,6 +434,17 @@
         floating = true;
         randomFloat();
     });
+</script>
+<script>
+    const root = document.documentElement;
+
+    document.getElementById("bg").oninput = e => root.style.setProperty("--bg", e.target.value);
+    document.getElementById("text").oninput = e => root.style.setProperty("--text", e.target.value);
+    document.getElementById("accent").oninput = e => root.style.setProperty("--accent", e.target.value);
+    document.getElementById("radius").oninput = e => root.style.setProperty("--radius", e.target.value + "px");
+    document.getElementById("shadow").oninput = e => root.style.setProperty("--shadow", e.target.value + "px");
+    document.getElementById("glow").oninput = e => root.style.setProperty("--glow", e.target.value + "px");
+    document.getElementById("layoutWidth").oninput = e => root.style.setProperty("--layout-width", e.target.value + "px");
 </script>
 
 </body>
