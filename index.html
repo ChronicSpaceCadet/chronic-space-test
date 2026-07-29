@@ -1,229 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chronic Space — Cosmic Engine</title>
+ <style>
+    :root {
+        --bg: #111;
+        --text: #fff;
+        --accent: #4a9eff;
+        --radius: 12px;
+        --shadow: 20px;
+        --glow: 0;
+        --layout-width: 900px;
+    }
+
+    .controller {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #000;
+        padding: 20px;
+        border-radius: 10px;
+        width: 260px;
+        z-index: 999;
+        box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
+        border: 1px solid #333;
+    }
+
+    .controller label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .controller input[type="range"],
+    .controller input[type="color"] {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+ </style>
+   
+<meta charset="UTF-8">
+<title>Chronic Space Cosmic Engine</title>
+
 <style>
-:root{
-  --bg:#0b0b0b;
-  --text:#ffffff;
-  --accent:#4a9eff;
-  --radius:12px;
-  --shadow:20px;
-  --glow:0px;
-  --layout-width:900px;
-  --star-color:#ffffff;
-  --particle-color:cyan;
-  --brightness:1;
-  --anim-scale:1;
-}
-/* Theme Changer popup (anchored to toggle) */
-#controllerToggle{
-  position:fixed; right:20px; bottom:20px; z-index:1300; display:flex; align-items:center; gap:8px;
-  padding:10px 14px; border-radius:999px; background:linear-gradient(135deg,var(--accent),#7fb8ff);
-  color:#000; font-weight:700; border:none; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.5);
-}
-.controller{
-  position:fixed; right:20px; bottom:90px; width:320px; padding:14px; background:linear-gradient(180deg, rgba(0,0,0,0.95), rgba(10,10,10,0.92));
-  border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,.6); color:var(--text); z-index:1290;
-  transform-origin:100% 100%; opacity:0; transform:translateY(6px) scale(.98); transition:all .18s ease; pointer-events:none;
-}
-.controller.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
-.controller h3{ margin:0 0 8px 0; font-size:14px }
-.controller label{ font-size:13px; display:block; margin-bottom:6px }
-.controller input[type=color], .controller input[type=range], .controller select, .controller button{ width:100%; margin-bottom:8px }
-.controller .row{ display:flex; gap:8px }
-.controller .row>button{ flex:1 }
-.sr-only{ position:absolute; left:-9999px }
-/* Page base */
-body{ margin:0; font-family:Arial, sans-serif; color:var(--text); background:radial-gradient(circle at center,var(--bg), #000 70%); filter:brightness(var(--brightness)); transition:background .35s ease, filter .25s ease }
-/* Banner area */
-#banner{ position:relative; width:100%; height:55vh; min-height:320px; overflow:hidden; z-index:10; margin-top:40px }
-#banner img{ position:absolute; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.2s ease }
-#banner img.active{ opacity:1 }
-.smoke{ position:absolute; inset:0; width:100%; height:100%; z-index:5; pointer-events:none; background-size:cover; opacity:0.12; transition:opacity .3s ease }
-/* Mecard inside banner */
-#mecard{ position:absolute; width:140px; height:auto; z-index:60; right:18px; top:18px; transform-origin:center center; animation:spinForever 3s linear infinite; cursor:pointer; transition:transform 600ms ease, left 600ms ease, top 600ms ease, opacity .2s }
-@keyframes spinForever{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-/* stars & particles */
-.stars{ position:absolute; inset:0; z-index:20; pointer-events:none }
-.star{ position:absolute; width:2px; height:2px; background:var(--star-color); border-radius:50%; animation:twinkle 2s infinite ease-in-out }
-@keyframes twinkle{ 0%{opacity:.2}50%{opacity:1}100%{opacity:.2} }
-#particles{ position:absolute; inset:0; z-index:25; pointer-events:none }
-.particle{ position:absolute; width:3px; height:3px; background:var(--particle-color); border-radius:50%; animation:rise 6s linear infinite }
-@keyframes rise{ 0%{transform:translateY(0);opacity:.4}100%{transform:translateY(-200px);opacity:0} }
-.symbol{ position:absolute; font-size:14px; opacity:.85; pointer-events:none; animation:riseSym 6s linear infinite }
-@keyframes riseSym{ 0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-220px);opacity:0} }
-/* founder modal */
-#founderModal{ position:fixed; inset:0; display:none; justify-content:center; align-items:center; background:rgba(0,0,0,.86); z-index:2000 }
-#founderCard{ width:360px; background:linear-gradient(180deg,#070707,#111); border-radius:14px; padding:18px; border:3px solid var(--accent); box-shadow:0 0 calc(var(--shadow)*1px) var(--accent); text-align:center }
-.founderImage{ width:100%; border-radius:10px; margin-bottom:12px }
-.socialRow{ display:flex; justify-content:space-around; margin:12px 0 }
-.socialIcon{ width:46px; height:46px; border-radius:50%; display:flex; justify-content:center; align-items:center; color:white; font-weight:bold }
-.fb{ background:#1877f2 } .yt{ background:#ff0000 } .x{ background:#000 } .li{ background:#0a66c2 }
-#closeFounder{ margin-top:6px; padding:10px 18px; border-radius:8px; background:var(--accent); border:none; font-weight:bold }
-@media(max-width:600px){ .controller{ width:92% } #mecard{ width:110px } }
-</style>
+    body {
+        margin: 0;
+        background: radial-gradient(circle at center, #0a0a0a, #000000 70%);
+        overflow-x: hidden;
+        font-family: Arial, sans-serif;
+        color: white;
+    }
+
+    /* PARALLAX STARFIELD */
+    .stars {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        opacity: 0.8;
+        border-radius: 50%;
+        animation: twinkle 2s infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+        0% { opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { opacity: 0.2; }
+    }
+
+    /* FLOATING PARTICLES */
+    .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: cyan;
+        opacity: 0.4;
+        border-radius: 50%;
+        animation: rise 6s linear infinite;
+    }
+
+    @keyframes rise {
+        0% { transform: translateY(0px); opacity: 0.4; }
+        100% { transform: translateY(-200px); opacity: 0; }
+    }
+
+    /* BANNER AREA */
+    #banner {
+        position: relative;
+        width: 100%;
+        height: 550px;
+        overflow: hidden;
+        z-index: 10;
+        margin-top: 40px;
+    }
+
+    #banner img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 1.2s ease;
+        filter: drop-shadow(0px 0px 15px rgba(0,255,255,0.4));
+    }
+
+    #banner img.active {
+        opacity: 1;
+    }
+
+    /* COSMIC ANIMATIONS */
+    @keyframes shimmer {
+        0% { filter: brightness(1); }
+        50% { filter: brightness(1.4); }
+        100% { filter: brightness(1); }
+    }
+
+    @keyframes drift {
+        0% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.03) rotate(1deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes pulse {
+        0% { filter: drop-shadow(0px 0px 10px cyan); }
+        50% { filter: drop-shadow(0px 0px 25px cyan); }
+        100% { filter: drop-shadow(0px 0px 10px cyan); }
+    }
+
+    @keyframes wave {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-12px); }
+        100% { transform: translateY(0px); }
+    }
+
+    @keyframes warp {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes glitch {
+        0% { transform: translateX(0px); }
+        20% { transform: translateX(-3px); }
+        40% { transform: translateX(3px); }
+        60% { transform: translateX(-2px); }
+        80% { transform: translateX(2px); }
+        100% { transform: translateX(0px); }
+    }
+
+    @keyframes smoke {
+        0% { opacity: 0.1; transform: translateX(0px); }
+        50% { opacity: 0.25; transform: translateX(20px); }
+        100% { opacity: 0.1; transform: translateX(0px); }
+    }
+
+    .smoke {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: url('https://i.imgur.com/8fK4h7R.png');
+        background-size: cover;
+        opacity: 0.15;
+        animation: smoke 12s infinite linear;
+        z-index: 5;
+        pointer-events: none;
+    }
+
+    /* MECARD FLOATING OBJECT */
+    #mecard {
+        position: fixed;
+        top: 50%;
+        left: -200px;
+        width: 180px;
+        height: auto;
+        z-index: 999;
+        filter: drop-shadow(0px 0px 15px cyan);
+        cursor: pointer;
+        transition: transform 1s ease, top 1s ease, left 1s ease;
+        animation: spinForever 3s linear infinite;
+    }
+
+    @keyframes spinForever {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* FOUNDER MODAL BACKDROP */
+    #founderModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.85);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+
+    /* TAROT-STYLE CARD */
+    #founderCard {
+        width: 350px;
+        background: linear-gradient(180deg, #0a0a0a, #111, #0a0a0a);
+        border: 3px solid cyan;
+        border-radius: 18px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0px 0px 25px cyan;
+        animation: cardReveal 0.8s ease;
+    }
+
+    @keyframes cardReveal {
+        0% { transform: scale(0.4); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .founderImage {
+        width: 100%;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0px 0px 20px cyan;
+    }
+
+    /* SOCIAL ICONS */
+    .socialRow {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+    }
+
+    .socialIcon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        font-size: 22px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .socialIcon:hover {
+        transform: scale(1.2);
+        box-shadow: 0px 0px 15px cyan;
+    }
+
+    .fb { background: #1877f2; }
+    .yt { background: #ff0000; }
+    .x  { background: #000000; }
+    .li { background: #0a66c2; }
+
+    /* CLOSE BUTTON */
+    #closeFounder {
+        background: cyan;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        color: black;
+        transition: background 0.3s ease;
+    }
+
+    #closeFounder:hover {
+        background: white;
+    }
+ </style>
 </head>
 <body>
-<!-- Theme Changer Toggle -->
-<button id="controllerToggle" aria-controls="styleController" aria-expanded="false" title="Theme Changer">🎨 Theme Changer</button>
-<div class="controller" id="styleController" role="region" aria-label="Theme Changer">
-  <div class="sr-only">Theme Changer</div>
-  <h3>Theme Effects</h3>
-  <label for="patternSelect">Background Effect</label>
-  <select id="patternSelect">
-    <option value="starfield">Starfield</option>
-    <option value="nebula">Nebula</option>
-    <option value="grid">Grid</option>
-    <option value="noise">Noise</option>
-    <option value="fire">Fire</option>
-    <option value="symbols">Symbols</option>
-    <option value="dollars">Dollar Signs</option>
-  </select>
+<div class="controller">
+    <label>Background Color</label>
+    <input id="bg" type="color" value="#111111">
 
-  <label for="symbolChar">Symbol (for Symbols option)</label>
-  <select id="symbolChar">
-    <option value="★">Star ★</option>
-    <option value="✦">Spark ✦</option>
-    <option value="$">Dollar $</option>
-    <option value="∞">Infinity ∞</option>
-    <option value="☽">Moon ☽</option>
-  </select>
+    <label>Text Color</label>
+    <input id="text" type="color" value="#ffffff">
 
-  <label for="bgColor">Background Color</label>
-  <input id="bgColor" type="color" value="#0b0b0b">
+    <label>Accent Color</label>
+    <input id="accent" type="color" value="#4a9eff">
 
-  <label for="accentColor">Accent Color</label>
-  <input id="accentColor" type="color" value="#4a9eff">
+    <label>Corner Radius</label>
+    <input id="radius" type="range" min="0" max="40" value="12">
 
-  <label for="brightness">Brightness</label>
-  <input id="brightness" type="range" min="0.6" max="1.4" step="0.01" value="1">
+    <label>Shadow Strength</label>
+    <input id="shadow" type="range" min="0" max="60" value="20">
 
-  <label for="animIntensity">Animation Intensity</label>
-  <input id="animIntensity" type="range" min="0.4" max="2" step="0.1" value="1">
+    <label>Glow</label>
+    <input id="glow" type="range" min="0" max="40" value="0">
 
-  <label for="starDensity">Star Density</label>
-  <input id="starDensity" type="range" min="0" max="300" value="150">
-
-  <label for="particleDensity">Particle Density</label>
-  <input id="particleDensity" type="range" min="0" max="200" value="60">
-
-  <div class="row">
-    <button id="saveTheme">Save</button>
-    <button id="resetTheme">Reset</button>
-  </div>
+    <label>Layout Width</label>
+    <input id="layoutWidth" type="range" min="600" max="1400" value="900">
 </div>
 
-<!-- Banner and effects -->
+<div class="stars" id="stars"></div>
+<div id="particles"></div>
+
 <div id="banner">
-  <div class="smoke" aria-hidden="true"></div>
-  <div class="stars" id="stars"></div>
-  <div id="particles"></div>
-  <img src="images/BANNER1.jpeg" alt="Banner 1" loading="lazy">
-  <img src="images/BANNER2.jpeg" alt="Banner 2" loading="lazy">
-  <img src="images/BANNER3.jpeg" alt="Banner 3" loading="lazy">
-  <img src="images/BANNER4.jpeg" alt="Banner 4" loading="lazy">
-  <img src="images/BANNER5.jpeg" alt="Banner 5" loading="lazy">
-  <img src="images/BANNER6.jpeg" alt="Banner 6" loading="lazy">
-  <img src="images/BANNER7.jpeg" alt="Banner 7" loading="lazy">
-  <!-- MECARD inside banner so it only floats over the banner -->
-  <img id="mecard" src="images/MECARD.png" alt="Mecard" loading="lazy" tabindex="0" aria-label="Open founder links">
+    <div class="smoke"></div>
+
+    <img src="images/BANNER1.jpeg">
+    <img src="images/BANNER2.jpeg">
+    <img src="images/BANNER3.jpeg">
+    <img src="images/BANNER4.jpeg">
+    <img src="images/BANNER5.jpeg">
+    <img src="images/BANNER6.jpeg">
+    <img src="images/BANNER7.jpeg">
 </div>
 
-<!-- Founder modal -->
-<div id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderTitle">
-  <div id="founderCard">
-    <img src="images/MECARD.png" class="founderImage" alt="Founder">
-    <h2 id="founderTitle">CHRONIC SPACE FOUNDER</h2>
-    <div class="socialRow">
-      <div class="socialIcon fb" onclick="window.open('https://www.facebook.com/chroniccody','_blank')" aria-label="Facebook">f</div>
-      <div class="socialIcon yt" onclick="window.open('https://www.youtube.com/@ChronicSpace','_blank')" aria-label="YouTube">▶</div>
-      <div class="socialIcon x" onclick="window.open('https://x.com/AmaBurnSpace','_blank')" aria-label="X">X</div>
-      <div class="socialIcon li" onclick="window.open('https://www.linkedin.com/in/founderchronicspace/','_blank')" aria-label="LinkedIn">in</div>
+<!-- MECARD + FOUNDER CARD -->
+<img id="mecard" src="images/MECARD.png">
+
+<div id="founderModal">
+    <div id="founderCard">
+        <img src="images/MECARD.png" class="founderImage">
+
+        <h2>CHRONIC SPACE FOUNDER</h2>
+
+        <div class="socialRow">
+            <div class="socialIcon fb" onclick="window.open('https://www.facebook.com/chroniccody','_blank')">f</div>
+            <div class="socialIcon yt" onclick="window.open('https://www.youtube.com/@ChronicSpace','_blank')">▶</div>
+            <div class="socialIcon x" onclick="window.open('https://x.com/AmaBurnSpace','_blank')">X</div>
+            <div class="socialIcon li" onclick="window.open('https://www.linkedin.com/in/founderchronicspace/','_blank')">in</div>
+        </div>
+
+        <button id="closeFounder">CLOSE</button>
     </div>
-    <button id="closeFounder">CLOSE</button>
-  </div>
 </div>
 
 <script>
-// Elements
-const root = document.documentElement;
-const banner = document.getElementById('banner');
-const mecard = document.getElementById('mecard');
-const starsEl = document.getElementById('stars');
-const particlesEl = document.getElementById('particles');
-const smoke = document.querySelector('.smoke');
-let floatTimer=null; let floating=true; let currentBanner=0; let bannerInterval=null; let animScale=1;
+    /* STARFIELD */
+    const starContainer = document.getElementById("stars");
+    for (let i = 0; i < 150; i++) {
+        let s = document.createElement("div");
+        s.className = "star";
+        s.style.top = Math.random() * 100 + "%";
+        s.style.left = Math.random() * 100 + "%";
+        s.style.animationDelay = Math.random() * 2 + "s";
+        starContainer.appendChild(s);
+    }
 
-// Banner slideshow
-const banners = banner.querySelectorAll('img');
-function showBanner(){ banners.forEach((b,i)=>{ b.classList.toggle('active', i===currentBanner); }); currentBanner=(currentBanner+1)%banners.length }
-showBanner(); bannerInterval = setInterval(showBanner,5000);
+    /* PARTICLES */
+    const particleContainer = document.getElementById("particles");
+    for (let i = 0; i < 60; i++) {
+        let p = document.createElement("div");
+        p.className = "particle";
+        p.style.top = Math.random() * 100 + "%";
+        p.style.left = Math.random() * 100 + "%";
+        p.style.animationDelay = Math.random() * 6 + "s";
+        particleContainer.appendChild(p);
+    }
 
-// Mecard: float only inside banner
-function randomFloatInBanner(){ if(!floating) return; const bw=banner.clientWidth, bh=banner.clientHeight; const mW=mecard.clientWidth, mH=mecard.clientHeight; const padding=8; const left = Math.random()*(bw - mW - padding*2) + padding; const top = Math.random()*(bh - mH - padding*2) + padding; mecard.style.left = left + 'px'; mecard.style.top = top + 'px'; floatTimer = setTimeout(randomFloatInBanner, 2200); }
-// ensure mecard visible and spinning initially
-mecard.style.display='block'; mecard.style.opacity='1'; mecard.style.pointerEvents='auto';
-randomFloatInBanner();
+    /* RANDOMIZED BANNER ANIMATIONS */
+    const animations = [
+        "shimmer 4s infinite ease-in-out",
+        "drift 6s infinite ease-in-out",
+        "pulse 5s infinite ease-in-out",
+        "wave 6s infinite ease-in-out",
+        "warp 5s infinite ease-in-out",
+        "glitch 1s infinite ease-in-out",
+    ];
 
-// Generative effects
-function makeStars(count){ starsEl.innerHTML=''; for(let i=0;i<count;i++){ const s=document.createElement('div'); s.className='star'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; starsEl.appendChild(s); } }
-function makeParticles(count){ particlesEl.innerHTML=''; for(let i=0;i<count;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.top=(Math.random()*100)+'%'; p.style.animationDelay=(Math.random()*6)+'s'; particlesEl.appendChild(p); } }
-function makeSymbolParticles(count, char){ particlesEl.innerHTML=''; for(let i=0;i<count;i++){ const s=document.createElement('div'); s.className='symbol'; s.textContent=char; s.style.left=Math.random()*100+'%'; s.style.top=(Math.random()*100)+'%'; s.style.fontSize=(10 + Math.random()*22) + 'px'; s.style.color = getComputedStyle(root).getPropertyValue('--accent') || '#fff'; s.style.animationDelay=(Math.random()*6)+'s'; particlesEl.appendChild(s); } }
+    const banners = document.querySelectorAll("#banner img");
+    let current = 0;
 
-// Patterns
-function setPattern(name, symbolChar){ smoke.style.opacity = (name==='starfield') ? 0 : 0.12; smoke.style.backgroundImage='none'; particlesEl.innerHTML=''; starsEl.innerHTML=''; switch(name){
-  case 'starfield': makeStars(parseInt(document.getElementById('starDensity').value,10)||150); makeParticles(parseInt(document.getElementById('particleDensity').value,10)||60); break;
-  case 'nebula': smoke.style.backgroundImage = "url('https://i.imgur.com/8fK4h7R.png')"; smoke.style.opacity=0.14; makeStars(90); makeParticles(60); break;
-  case 'grid': smoke.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)"; smoke.style.backgroundSize='40px 40px,40px 40px'; smoke.style.opacity=0.06; break;
-  case 'noise': smoke.style.backgroundImage = "url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\'><filter id=\'n\'><feTurbulence baseFrequency=\'0.9\' numOctaves=\'2\' stitchTiles=\'stitch\'/></filter><rect width=\'100%\' height=\'100%\' filter=\'url(%23n)\' fill=\'white\'/></svg>')"; smoke.style.opacity=0.06; break;
-  case 'fire': smoke.style.backgroundImage = "radial-gradient(circle at 50% 70%, rgba(255,140,0,0.35), rgba(255,40,0,0.15) 20%, transparent 45%), linear-gradient(180deg, rgba(255,80,0,0.06), transparent)"; smoke.style.opacity=0.18; makeParticles(40); break;
-  case 'symbols': makeSymbolParticles(parseInt(document.getElementById('particleDensity').value,10)||60, symbolChar||'★'); break;
-  case 'dollars': makeSymbolParticles(parseInt(document.getElementById('particleDensity').value,10)||80, '$'); break;
-  default: makeStars(120); makeParticles(40); break;
- }
-}
+    function showBanner() {
+        banners.forEach((b) => {
+            b.classList.remove("active");
+            b.style.animation = "";
+        });
 
-// mecard click: hide spinner, show modal
-mecard.addEventListener('click', ()=>{ mecard.style.opacity='0'; mecard.style.pointerEvents='none'; setTimeout(()=>{ mecard.style.display='none'; },200); const modal=document.getElementById('founderModal'); modal.style.display='flex'; document.getElementById('closeFounder').focus(); });
-mecard.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); mecard.click(); } });
+        const banner = banners[current];
+        banner.classList.add("active");
 
-// close modal: restore mecard
-document.getElementById('closeFounder').addEventListener('click', ()=>{ const modal=document.getElementById('founderModal'); modal.style.display='none'; mecard.style.display='block'; setTimeout(()=>{ mecard.style.opacity='1'; mecard.style.pointerEvents='auto'; },40); floating=true; randomFloatInBanner(); });
+        const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+        banner.style.animation = randomAnimation;
 
-// Controller popup
-const toggle=document.getElementById('controllerToggle'); const controller=document.getElementById('styleController');
-toggle.addEventListener('click', ()=>{ const open = controller.classList.toggle('open'); toggle.setAttribute('aria-expanded', open?'true':'false'); if(open) controller.querySelector('select, input, button').focus(); else toggle.focus(); });
+        current = (current + 1) % banners.length;
+    }
 
-document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ if(controller.classList.contains('open')){ controller.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); toggle.focus(); } if(document.getElementById('founderModal').style.display === 'flex'){ document.getElementById('founderModal').style.display='none'; mecard.style.display='block'; setTimeout(()=>{ mecard.style.opacity='1'; mecard.style.pointerEvents='auto'; },40); floating=true; randomFloatInBanner(); } } });
+    showBanner();
+    setInterval(showBanner, 5000);
 
-// Controls
-const patternSelect=document.getElementById('patternSelect'); const symbolChar=document.getElementById('symbolChar'); const bgColor=document.getElementById('bgColor'); const accentColor=document.getElementById('accentColor'); const brightness=document.getElementById('brightness'); const animIntensity=document.getElementById('animIntensity'); const starDensity=document.getElementById('starDensity'); const particleDensity=document.getElementById('particleDensity');
+    /* RANDOM FLOATING PATH FOR MECARD */
+    const mecard = document.getElementById("mecard");
+    let floating = true;
 
-function applyUI(){ root.style.setProperty('--bg', bgColor.value); root.style.setProperty('--accent', accentColor.value); root.style.setProperty('--brightness', brightness.value); animScale = parseFloat(animIntensity.value); // adjust animations durations
- document.querySelectorAll('.star').forEach(s=>s.style.animationDuration = (2/animScale)+'s'); document.querySelectorAll('.particle').forEach(p=>p.style.animationDuration = (6/animScale)+'s'); document.querySelectorAll('.symbol').forEach(s=>s.style.animationDuration = (6/animScale)+'s'); mecard.style.animationDuration = (3/animScale)+'s'; setPattern(patternSelect.value, symbolChar.value); }
+    function randomFloat() {
+        if (!floating) return;
 
-patternSelect.addEventListener('change', applyUI); symbolChar.addEventListener('change', applyUI); bgColor.addEventListener('input', applyUI); accentColor.addEventListener('input', applyUI); brightness.addEventListener('input', applyUI); animIntensity.addEventListener('input', applyUI);
-starDensity.addEventListener('input', ()=>{ makeStars(parseInt(starDensity.value,10)); }); particleDensity.addEventListener('input', ()=>{ setPattern(patternSelect.value, symbolChar.value); });
+        const randTop = Math.random() * 70 + 10;
+        const randLeft = Math.random() * 80 + 10;
 
-// save/reset
-function saveTheme(){ const data={ pattern:patternSelect.value, symbol:symbolChar.value, bg:bgColor.value, accent:accentColor.value, brightness:brightness.value, animIntensity:animIntensity.value, starDensity:starDensity.value, particleDensity:particleDensity.value }; localStorage.setItem('chronicThemeEffects', JSON.stringify(data)); alert('Theme effects saved locally'); }
-function loadTheme(){ try{ const raw=localStorage.getItem('chronicThemeEffects'); if(!raw) return null; return JSON.parse(raw);}catch(e){return null;} }
-function resetTheme(){ localStorage.removeItem('chronicThemeEffects'); patternSelect.value='starfield'; symbolChar.value='★'; bgColor.value='#0b0b0b'; accentColor.value='#4a9eff'; brightness.value=1; animIntensity.value=1; starDensity.value=150; particleDensity.value=60; applyUI(); }
+        mecard.style.top = randTop + "%";
+        mecard.style.left = randLeft + "%";
 
-document.getElementById('saveTheme').addEventListener('click', saveTheme); document.getElementById('resetTheme').addEventListener('click', resetTheme);
+        setTimeout(randomFloat, 2000);
+    }
 
-// init
-(function init(){ const saved=loadTheme(); if(saved){ patternSelect.value = saved.pattern || 'starfield'; symbolChar.value = saved.symbol || '★'; bgColor.value = saved.bg || '#0b0b0b'; accentColor.value = saved.accent || '#4a9eff'; brightness.value = saved.brightness || 1; animIntensity.value = saved.animIntensity || 1; starDensity.value = saved.starDensity || 150; particleDensity.value = saved.particleDensity || 60; }
- applyUI(); // respect reduced motion
- if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.querySelectorAll('*').forEach(el=>el.style.animation='none'); }
-})();
+    randomFloat();
 
-// ensure mecard stays in banner on resize
-window.addEventListener('resize', ()=>{ const bw=banner.clientWidth, bh=banner.clientHeight, mW=mecard.clientWidth, mH=mecard.clientHeight; const left = parseFloat(mecard.style.left)||0; const top = parseFloat(mecard.style.top)||0; const clampedLeft = Math.min(Math.max(8, left), bw-mW-8); const clampedTop = Math.min(Math.max(8, top), bh-mH-8); mecard.style.left = clampedLeft+'px'; mecard.style.top = clampedTop+'px'; });
+    /* CLICK TO FREEZE + ZOOM + OPEN MENU */
+    mecard.addEventListener("click", () => {
+        floating = false;
 
+        mecard.style.transition = "transform 1s ease, top 1s ease, left 1s ease";
+        mecard.style.top = "50%";
+        mecard.style.left = "50%";
+        mecard.style.transform = "translate(-50%, -50%) scale(1.3) rotate(0deg)";
+        mecard.style.zIndex = "2001";
+
+        setTimeout(() => {
+            document.getElementById("founderModal").style.display = "flex";
+        }, 900);
+    });
+
+    /* CLOSE MENU + RETURN TO CHAOS */
+    document.getElementById("closeFounder").addEventListener("click", () => {
+        document.getElementById("founderModal").style.display = "none";
+
+        mecard.style.transform = "scale(1)";
+        floating = true;
+        randomFloat();
+    });
 </script>
+<script>
+    const root = document.documentElement;
+
+    document.getElementById("bg").oninput = e => root.style.setProperty("--bg", e.target.value);
+    document.getElementById("text").oninput = e => root.style.setProperty("--text", e.target.value);
+    document.getElementById("accent").oninput = e => root.style.setProperty("--accent", e.target.value);
+    document.getElementById("radius").oninput = e => root.style.setProperty("--radius", e.target.value + "px");
+    document.getElementById("shadow").oninput = e => root.style.setProperty("--shadow", e.target.value + "px");
+    document.getElementById("glow").oninput = e => root.style.setProperty("--glow", e.target.value + "px");
+    document.getElementById("layoutWidth").oninput = e => root.style.setProperty("--layout-width", e.target.value + "px");
+</script>
+
 </body>
 </html>
