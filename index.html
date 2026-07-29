@@ -18,40 +18,43 @@
   --brightness:1;
   --anim-scale:1;
 }
-/* Controller (Theme Changer) */
-.controller{
-  position:fixed; top:20px; right:20px; width:340px; padding:18px; background:linear-gradient(180deg, rgba(0,0,0,0.9), rgba(10,10,10,0.85));
-  border-radius:12px; z-index:1200; transform:translateX(380px); transition:transform .28s ease; box-shadow:0 6px 30px rgba(0,0,0,.6); color:var(--text);
+/* Theme Changer popup (anchored to toggle) */
+#controllerToggle{
+  position:fixed; right:20px; bottom:20px; z-index:1300; display:flex; align-items:center; gap:8px;
+  padding:10px 14px; border-radius:999px; background:linear-gradient(135deg,var(--accent),#7fb8ff);
+  color:#000; font-weight:700; border:none; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.5);
 }
-.controller.open{ transform:translateX(0); }
+.controller{
+  position:fixed; right:20px; bottom:90px; width:320px; padding:14px; background:linear-gradient(180deg, rgba(0,0,0,0.95), rgba(10,10,10,0.92));
+  border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,.6); color:var(--text); z-index:1290;
+  transform-origin:100% 100%; opacity:0; transform:translateY(6px) scale(.98); transition:all .18s ease; pointer-events:none;
+}
+.controller.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
 .controller h3{ margin:0 0 8px 0; font-size:14px }
 .controller label{ font-size:13px; display:block; margin-bottom:6px }
 .controller input[type=color], .controller input[type=range], .controller select, .controller button{ width:100%; margin-bottom:8px }
 .controller .row{ display:flex; gap:8px }
 .controller .row>button{ flex:1 }
-#controllerToggle{ position:fixed; right:20px; bottom:20px; width:64px; height:64px; border-radius:12px; background:linear-gradient(135deg,var(--accent),#7fb8ff); border:none; z-index:1300; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:22px }
-#controllerToggle span{ font-weight:700 }
 .sr-only{ position:absolute; left:-9999px }
 /* Page base */
-body{ margin:0; font-family:Arial, sans-serif; color:var(--text); background:radial-gradient(circle at center,var(--bg), #000 70%); filter:brightness(var(--brightness)); transition:background .4s ease, filter .3s ease }
+body{ margin:0; font-family:Arial, sans-serif; color:var(--text); background:radial-gradient(circle at center,var(--bg), #000 70%); filter:brightness(var(--brightness)); transition:background .35s ease, filter .25s ease }
 /* Banner area */
 #banner{ position:relative; width:100%; height:55vh; min-height:320px; overflow:hidden; z-index:10; margin-top:40px }
 #banner img{ position:absolute; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.2s ease }
 #banner img.active{ opacity:1 }
 .smoke{ position:absolute; inset:0; width:100%; height:100%; z-index:5; pointer-events:none; background-size:cover; opacity:0.12; transition:opacity .3s ease }
-/* mecard is now positioned inside banner */
-#mecard{ position:absolute; width:140px; height:auto; z-index:20; right:12px; top:12px; transform-origin:center center; animation:spinForever calc(3s / var(--anim-scale)) linear infinite; cursor:pointer; transition:transform 800ms ease, left 800ms ease, top 800ms ease, opacity .3s }
+/* Mecard inside banner */
+#mecard{ position:absolute; width:140px; height:auto; z-index:60; right:18px; top:18px; transform-origin:center center; animation:spinForever 3s linear infinite; cursor:pointer; transition:transform 600ms ease, left 600ms ease, top 600ms ease, opacity .2s }
 @keyframes spinForever{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 /* stars & particles */
-.stars{ position:absolute; inset:0; z-index:2; pointer-events:none }
-.star{ position:absolute; width:2px; height:2px; background:var(--star-color); border-radius:50%; animation:twinkle calc(2s / var(--anim-scale)) infinite ease-in-out }
+.stars{ position:absolute; inset:0; z-index:20; pointer-events:none }
+.star{ position:absolute; width:2px; height:2px; background:var(--star-color); border-radius:50%; animation:twinkle 2s infinite ease-in-out }
 @keyframes twinkle{ 0%{opacity:.2}50%{opacity:1}100%{opacity:.2} }
-#particles{ position:absolute; inset:0; z-index:3; pointer-events:none }
-.particle{ position:absolute; width:3px; height:3px; background:var(--particle-color); border-radius:50%; animation:rise calc(6s / var(--anim-scale)) linear infinite }
+#particles{ position:absolute; inset:0; z-index:25; pointer-events:none }
+.particle{ position:absolute; width:3px; height:3px; background:var(--particle-color); border-radius:50%; animation:rise 6s linear infinite }
 @keyframes rise{ 0%{transform:translateY(0);opacity:.4}100%{transform:translateY(-200px);opacity:0} }
-/* symbols/dollar particles */
-.symbol{ position:absolute; font-size:14px; opacity:.8; pointer-events:none; animation:riseSym calc(6s / var(--anim-scale)) linear infinite }
-@keyframes riseSym{ 0%{transform:translateY(0); opacity:.9}100%{transform:translateY(-220px); opacity:0} }
+.symbol{ position:absolute; font-size:14px; opacity:.85; pointer-events:none; animation:riseSym 6s linear infinite }
+@keyframes riseSym{ 0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-220px);opacity:0} }
 /* founder modal */
 #founderModal{ position:fixed; inset:0; display:none; justify-content:center; align-items:center; background:rgba(0,0,0,.86); z-index:2000 }
 #founderCard{ width:360px; background:linear-gradient(180deg,#070707,#111); border-radius:14px; padding:18px; border:3px solid var(--accent); box-shadow:0 0 calc(var(--shadow)*1px) var(--accent); text-align:center }
@@ -60,13 +63,12 @@ body{ margin:0; font-family:Arial, sans-serif; color:var(--text); background:rad
 .socialIcon{ width:46px; height:46px; border-radius:50%; display:flex; justify-content:center; align-items:center; color:white; font-weight:bold }
 .fb{ background:#1877f2 } .yt{ background:#ff0000 } .x{ background:#000 } .li{ background:#0a66c2 }
 #closeFounder{ margin-top:6px; padding:10px 18px; border-radius:8px; background:var(--accent); border:none; font-weight:bold }
-/* responsive */
 @media(max-width:600px){ .controller{ width:92% } #mecard{ width:110px } }
 </style>
 </head>
 <body>
 <!-- Theme Changer Toggle -->
-<button id="controllerToggle" aria-controls="styleController" aria-expanded="false" title="Theme Changer"><span>🎨</span></button>
+<button id="controllerToggle" aria-controls="styleController" aria-expanded="false" title="Theme Changer">🎨 Theme Changer</button>
 <div class="controller" id="styleController" role="region" aria-label="Theme Changer">
   <div class="sr-only">Theme Changer</div>
   <h3>Theme Effects</h3>
@@ -146,7 +148,7 @@ body{ margin:0; font-family:Arial, sans-serif; color:var(--text); background:rad
 </div>
 
 <script>
-// Utility
+// Elements
 const root = document.documentElement;
 const banner = document.getElementById('banner');
 const mecard = document.getElementById('mecard');
@@ -160,102 +162,67 @@ const banners = banner.querySelectorAll('img');
 function showBanner(){ banners.forEach((b,i)=>{ b.classList.toggle('active', i===currentBanner); }); currentBanner=(currentBanner+1)%banners.length }
 showBanner(); bannerInterval = setInterval(showBanner,5000);
 
-// Floating mecard within banner bounds
-function randomFloatInBanner(){ if(!floating) return; const bw=banner.clientWidth, bh=banner.clientHeight; const mW=mecard.clientWidth, mH=mecard.clientHeight; const padding=8; const left = Math.random()*(bw - mW - padding*2) + padding; const top = Math.random()*(bh - mH - padding*2) + padding; mecard.style.left = left + 'px'; mecard.style.top = top + 'px'; floatTimer = setTimeout(randomFloatInBanner, 2200);
-}
-// start
+// Mecard: float only inside banner
+function randomFloatInBanner(){ if(!floating) return; const bw=banner.clientWidth, bh=banner.clientHeight; const mW=mecard.clientWidth, mH=mecard.clientHeight; const padding=8; const left = Math.random()*(bw - mW - padding*2) + padding; const top = Math.random()*(bh - mH - padding*2) + padding; mecard.style.left = left + 'px'; mecard.style.top = top + 'px'; floatTimer = setTimeout(randomFloatInBanner, 2200); }
+// ensure mecard visible and spinning initially
+mecard.style.display='block'; mecard.style.opacity='1'; mecard.style.pointerEvents='auto';
 randomFloatInBanner();
 
-// make stars/particles generative functions
+// Generative effects
 function makeStars(count){ starsEl.innerHTML=''; for(let i=0;i<count;i++){ const s=document.createElement('div'); s.className='star'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; s.style.animationDelay=(Math.random()*2)+'s'; starsEl.appendChild(s); } }
 function makeParticles(count){ particlesEl.innerHTML=''; for(let i=0;i<count;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.top=(Math.random()*100)+'%'; p.style.animationDelay=(Math.random()*6)+'s'; particlesEl.appendChild(p); } }
-function makeSymbolParticles(count, char){ particlesEl.innerHTML=''; for(let i=0;i<count;i++){ const s=document.createElement('div'); s.className='symbol'; s.textContent=char; s.style.left=Math.random()*100+'%'; s.style.top=(Math.random()*100)+'%'; s.style.fontSize=(10 + Math.random()*20) + 'px'; s.style.color = getComputedStyle(root).getPropertyValue('--accent') || '#fff'; s.style.animationDelay=(Math.random()*6)+'s'; particlesEl.appendChild(s); } }
+function makeSymbolParticles(count, char){ particlesEl.innerHTML=''; for(let i=0;i<count;i++){ const s=document.createElement('div'); s.className='symbol'; s.textContent=char; s.style.left=Math.random()*100+'%'; s.style.top=(Math.random()*100)+'%'; s.style.fontSize=(10 + Math.random()*22) + 'px'; s.style.color = getComputedStyle(root).getPropertyValue('--accent') || '#fff'; s.style.animationDelay=(Math.random()*6)+'s'; particlesEl.appendChild(s); } }
 
 // Patterns
-function setPattern(name, symbolChar){ // clear overlays
-  // default: small smoke opacity
-  smoke.style.opacity = (name==='starfield') ? 0 : 0.12;
-  smoke.style.backgroundImage='none';
-  particlesEl.innerHTML=''; starsEl.innerHTML='';
-  switch(name){
-    case 'starfield':
-      makeStars(parseInt(document.getElementById('starDensity').value,10) || 120);
-      makeParticles(parseInt(document.getElementById('particleDensity').value,10) || 40);
-      break;
-    case 'nebula':
-      smoke.style.backgroundImage = "url('https://i.imgur.com/8fK4h7R.png')"; smoke.style.opacity=0.14; makeStars(90); makeParticles(60); break;
-    case 'grid':
-      smoke.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)"; smoke.style.backgroundSize='40px 40px,40px 40px'; smoke.style.opacity=0.06; break;
-    case 'noise':
-      smoke.style.backgroundImage = "url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\'><filter id=\'n\'><feTurbulence baseFrequency=\'0.9\' numOctaves=\'2\' stitchTiles=\'stitch\'/></filter><rect width=\'100%\' height=\'100%\' filter=\'url(%23n)\' fill=\'white\'/></svg>')"; smoke.style.opacity=0.06; break;
-    case 'fire':
-      // simple CSS gradient-based fire impression
-      smoke.style.backgroundImage = "radial-gradient(circle at 50% 70%, rgba(255,140,0,0.35), rgba(255,40,0,0.15) 20%, transparent 45%), linear-gradient(180deg, rgba(255,80,0,0.06), transparent)"; smoke.style.opacity=0.18; makeParticles(40); break;
-    case 'symbols':
-      makeSymbolParticles(parseInt(document.getElementById('particleDensity').value,10)||60, symbolChar||'★'); break;
-    case 'dollars':
-      makeSymbolParticles(parseInt(document.getElementById('particleDensity').value,10)||80, '$'); break;
-    default:
-      makeStars(120); makeParticles(40); break;
-  }
+function setPattern(name, symbolChar){ smoke.style.opacity = (name==='starfield') ? 0 : 0.12; smoke.style.backgroundImage='none'; particlesEl.innerHTML=''; starsEl.innerHTML=''; switch(name){
+  case 'starfield': makeStars(parseInt(document.getElementById('starDensity').value,10)||150); makeParticles(parseInt(document.getElementById('particleDensity').value,10)||60); break;
+  case 'nebula': smoke.style.backgroundImage = "url('https://i.imgur.com/8fK4h7R.png')"; smoke.style.opacity=0.14; makeStars(90); makeParticles(60); break;
+  case 'grid': smoke.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)"; smoke.style.backgroundSize='40px 40px,40px 40px'; smoke.style.opacity=0.06; break;
+  case 'noise': smoke.style.backgroundImage = "url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\'><filter id=\'n\'><feTurbulence baseFrequency=\'0.9\' numOctaves=\'2\' stitchTiles=\'stitch\'/></filter><rect width=\'100%\' height=\'100%\' filter=\'url(%23n)\' fill=\'white\'/></svg>')"; smoke.style.opacity=0.06; break;
+  case 'fire': smoke.style.backgroundImage = "radial-gradient(circle at 50% 70%, rgba(255,140,0,0.35), rgba(255,40,0,0.15) 20%, transparent 45%), linear-gradient(180deg, rgba(255,80,0,0.06), transparent)"; smoke.style.opacity=0.18; makeParticles(40); break;
+  case 'symbols': makeSymbolParticles(parseInt(document.getElementById('particleDensity').value,10)||60, symbolChar||'★'); break;
+  case 'dollars': makeSymbolParticles(parseInt(document.getElementById('particleDensity').value,10)||80, '$'); break;
+  default: makeStars(120); makeParticles(40); break;
+ }
 }
 
-// mecard click behaviour: hide spinning mecard and show modal; restore on close
-mecard.addEventListener('click', ()=>{
-  // hide mecard
-  mecard.style.opacity = '0'; mecard.style.pointerEvents='none';
-  setTimeout(()=>{ mecard.style.display='none'; }, 300);
-  // show modal
-  const modal = document.getElementById('founderModal'); modal.style.display='flex'; document.getElementById('closeFounder').focus();
-});
-// keyboard activation
+// mecard click: hide spinner, show modal
+mecard.addEventListener('click', ()=>{ mecard.style.opacity='0'; mecard.style.pointerEvents='none'; setTimeout(()=>{ mecard.style.display='none'; },200); const modal=document.getElementById('founderModal'); modal.style.display='flex'; document.getElementById('closeFounder').focus(); });
 mecard.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); mecard.click(); } });
 
-// close modal restores mecard
-document.getElementById('closeFounder').addEventListener('click', ()=>{
-  const modal = document.getElementById('founderModal'); modal.style.display='none';
-  mecard.style.display='block'; setTimeout(()=>{ mecard.style.opacity='1'; mecard.style.pointerEvents='auto'; }, 40);
-  // resume floating
-  floating=true; randomFloatInBanner();
-});
+// close modal: restore mecard
+document.getElementById('closeFounder').addEventListener('click', ()=>{ const modal=document.getElementById('founderModal'); modal.style.display='none'; mecard.style.display='block'; setTimeout(()=>{ mecard.style.opacity='1'; mecard.style.pointerEvents='auto'; },40); floating=true; randomFloatInBanner(); });
 
-// Controller wiring
-const toggle = document.getElementById('controllerToggle'); const controller = document.getElementById('styleController');
+// Controller popup
+const toggle=document.getElementById('controllerToggle'); const controller=document.getElementById('styleController');
 toggle.addEventListener('click', ()=>{ const open = controller.classList.toggle('open'); toggle.setAttribute('aria-expanded', open?'true':'false'); if(open) controller.querySelector('select, input, button').focus(); else toggle.focus(); });
 
-// controls
-const patternSelect = document.getElementById('patternSelect');
-const symbolChar = document.getElementById('symbolChar');
-const bgColor = document.getElementById('bgColor');
-const accentColor = document.getElementById('accentColor');
-const brightness = document.getElementById('brightness');
-const animIntensity = document.getElementById('animIntensity');
-const starDensity = document.getElementById('starDensity');
-const particleDensity = document.getElementById('particleDensity');
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ if(controller.classList.contains('open')){ controller.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); toggle.focus(); } if(document.getElementById('founderModal').style.display === 'flex'){ document.getElementById('founderModal').style.display='none'; mecard.style.display='block'; setTimeout(()=>{ mecard.style.opacity='1'; mecard.style.pointerEvents='auto'; },40); floating=true; randomFloatInBanner(); } } });
 
-function applyUI(){ root.style.setProperty('--bg', bgColor.value); root.style.setProperty('--accent', accentColor.value); root.style.setProperty('--brightness', brightness.value); animScale = parseFloat(animIntensity.value); root.style.setProperty('--anim-scale', animScale); document.querySelectorAll('.star').forEach(s=>s.style.animationDuration = (2/animScale)+'s'); document.querySelectorAll('.particle').forEach(p=>p.style.animationDuration = (6/animScale)+'s'); document.getElementById('mecard').style.animationDuration = (3/animScale)+'s'; setPattern(patternSelect.value, symbolChar.value); }
+// Controls
+const patternSelect=document.getElementById('patternSelect'); const symbolChar=document.getElementById('symbolChar'); const bgColor=document.getElementById('bgColor'); const accentColor=document.getElementById('accentColor'); const brightness=document.getElementById('brightness'); const animIntensity=document.getElementById('animIntensity'); const starDensity=document.getElementById('starDensity'); const particleDensity=document.getElementById('particleDensity');
 
-patternSelect.addEventListener('change', ()=>{ applyUI(); }); symbolChar.addEventListener('change', applyUI); bgColor.addEventListener('input', applyUI); accentColor.addEventListener('input', ()=>{ root.style.setProperty('--accent', accentColor.value); applyUI(); }); brightness.addEventListener('input', applyUI); animIntensity.addEventListener('input', applyUI); starDensity.addEventListener('input', ()=>{ makeStars(parseInt(starDensity.value,10)); }); particleDensity.addEventListener('input', ()=>{ setPattern(patternSelect.value, symbolChar.value); });
+function applyUI(){ root.style.setProperty('--bg', bgColor.value); root.style.setProperty('--accent', accentColor.value); root.style.setProperty('--brightness', brightness.value); animScale = parseFloat(animIntensity.value); // adjust animations durations
+ document.querySelectorAll('.star').forEach(s=>s.style.animationDuration = (2/animScale)+'s'); document.querySelectorAll('.particle').forEach(p=>p.style.animationDuration = (6/animScale)+'s'); document.querySelectorAll('.symbol').forEach(s=>s.style.animationDuration = (6/animScale)+'s'); mecard.style.animationDuration = (3/animScale)+'s'; setPattern(patternSelect.value, symbolChar.value); }
+
+patternSelect.addEventListener('change', applyUI); symbolChar.addEventListener('change', applyUI); bgColor.addEventListener('input', applyUI); accentColor.addEventListener('input', applyUI); brightness.addEventListener('input', applyUI); animIntensity.addEventListener('input', applyUI);
+starDensity.addEventListener('input', ()=>{ makeStars(parseInt(starDensity.value,10)); }); particleDensity.addEventListener('input', ()=>{ setPattern(patternSelect.value, symbolChar.value); });
 
 // save/reset
-function saveTheme(){ const data = { pattern:patternSelect.value, symbol:symbolChar.value, bg:bgColor.value, accent:accentColor.value, brightness:brightness.value, animIntensity:animIntensity.value, starDensity:starDensity.value, particleDensity:particleDensity.value }; localStorage.setItem('chronicThemeEffects', JSON.stringify(data)); alert('Theme effects saved locally'); }
+function saveTheme(){ const data={ pattern:patternSelect.value, symbol:symbolChar.value, bg:bgColor.value, accent:accentColor.value, brightness:brightness.value, animIntensity:animIntensity.value, starDensity:starDensity.value, particleDensity:particleDensity.value }; localStorage.setItem('chronicThemeEffects', JSON.stringify(data)); alert('Theme effects saved locally'); }
 function loadTheme(){ try{ const raw=localStorage.getItem('chronicThemeEffects'); if(!raw) return null; return JSON.parse(raw);}catch(e){return null;} }
-function resetTheme(){ localStorage.removeItem('chronicThemeEffects'); // defaults
- patternSelect.value='starfield'; symbolChar.value='★'; bgColor.value='#0b0b0b'; accentColor.value='#4a9eff'; brightness.value=1; animIntensity.value=1; starDensity.value=150; particleDensity.value=60; applyUI(); }
+function resetTheme(){ localStorage.removeItem('chronicThemeEffects'); patternSelect.value='starfield'; symbolChar.value='★'; bgColor.value='#0b0b0b'; accentColor.value='#4a9eff'; brightness.value=1; animIntensity.value=1; starDensity.value=150; particleDensity.value=60; applyUI(); }
 
-document.getElementById('saveTheme').addEventListener('click', saveTheme);
-document.getElementById('resetTheme').addEventListener('click', resetTheme);
+document.getElementById('saveTheme').addEventListener('click', saveTheme); document.getElementById('resetTheme').addEventListener('click', resetTheme);
 
 // init
-(function init(){ const saved = loadTheme(); if(saved){ patternSelect.value = saved.pattern || 'starfield'; symbolChar.value = saved.symbol || '★'; bgColor.value = saved.bg || '#0b0b0b'; accentColor.value = saved.accent || '#4a9eff'; brightness.value = saved.brightness || 1; animIntensity.value = saved.animIntensity || 1; starDensity.value = saved.starDensity || 150; particleDensity.value = saved.particleDensity || 60; }
- applyUI(); // start floats
- // respect reduced motion
+(function init(){ const saved=loadTheme(); if(saved){ patternSelect.value = saved.pattern || 'starfield'; symbolChar.value = saved.symbol || '★'; bgColor.value = saved.bg || '#0b0b0b'; accentColor.value = saved.accent || '#4a9eff'; brightness.value = saved.brightness || 1; animIntensity.value = saved.animIntensity || 1; starDensity.value = saved.starDensity || 150; particleDensity.value = saved.particleDensity || 60; }
+ applyUI(); // respect reduced motion
  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.querySelectorAll('*').forEach(el=>el.style.animation='none'); }
 })();
 
-// ensure mecard only within banner on resize
-window.addEventListener('resize', ()=>{ // clamp
- const bw=banner.clientWidth, bh=banner.clientHeight, mW=mecard.clientWidth, mH=mecard.clientHeight; const left = parseFloat(mecard.style.left)||0; const top = parseFloat(mecard.style.top)||0; const clampedLeft = Math.min(Math.max(8, left), bw-mW-8); const clampedTop = Math.min(Math.max(8, top), bh-mH-8); mecard.style.left = clampedLeft+'px'; mecard.style.top = clampedTop+'px'; });
+// ensure mecard stays in banner on resize
+window.addEventListener('resize', ()=>{ const bw=banner.clientWidth, bh=banner.clientHeight, mW=mecard.clientWidth, mH=mecard.clientHeight; const left = parseFloat(mecard.style.left)||0; const top = parseFloat(mecard.style.top)||0; const clampedLeft = Math.min(Math.max(8, left), bw-mW-8); const clampedTop = Math.min(Math.max(8, top), bh-mH-8); mecard.style.left = clampedLeft+'px'; mecard.style.top = clampedTop+'px'; });
 
 </script>
 </body>
