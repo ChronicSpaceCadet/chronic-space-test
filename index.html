@@ -16,11 +16,11 @@
 }
 /* Theme Editor UI */
 #themeToggle{
-  position:fixed; right:20px; bottom:20px; z-index:1400; display:flex; align-items:center; gap:10px;
+  position:fixed; right:20px; bottom:20px; z-index:99999; display:flex; align-items:center; gap:10px;
   padding:10px 14px; border-radius:999px; background:linear-gradient(135deg,var(--accent),#7fb8ff);
   color:#000; font-weight:700; border:none; cursor:pointer; box-shadow:0 8px 28px rgba(0,0,0,.5);
 }
-#themePanel{ position:fixed; right:20px; bottom:96px; width:360px; padding:12px; background:linear-gradient(180deg, rgba(8,8,8,0.98), rgba(12,12,12,0.95)); border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.6); color:var(--text); z-index:1390; transform-origin:100% 100%; opacity:0; transform:translateY(8px) scale(.985); transition:all .16s ease; pointer-events:none }
+#themePanel{ position:fixed; right:20px; bottom:96px; width:360px; padding:12px; background:linear-gradient(180deg, rgba(8,8,8,0.98), rgba(12,12,12,0.95)); border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.6); color:var(--text); z-index:14000; transform-origin:100% 100%; opacity:0; transform:translateY(8px) scale(.985); transition:all .16s ease; pointer-events:none }
 #themePanel.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto }
 .theme-row{ display:flex; gap:8px; align-items:center }
 .thumbs{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:8px }
@@ -39,15 +39,16 @@ body{ margin:0; font-family:Inter, Arial, sans-serif; color:var(--text); backgro
 #banner{ position:relative; width:100%; height:55vh; min-height:320px; overflow:hidden; z-index:10; margin-top:40px }
 #banner img{ position:absolute; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.2s ease }
 #banner img.active{ opacity:1 }
-.smoke{ position:absolute; inset:0; width:100%; height:100%; z-index:5; pointer-events:none; background-size:cover; opacity:0.12; transition:opacity .28s ease }
-/* mecard kept simple until later work */
+/* make overlays cover the whole viewport so "vibe" changes affect the page, not only the banner */
+.smoke{ position:fixed; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; background-size:cover; opacity:0.12; transition:opacity .28s ease }
+.stars{ position:fixed; inset:0; z-index:3; pointer-events:none }
+#particles{ position:fixed; inset:0; z-index:4; pointer-events:none }
+/* mecard kept inside banner */
 #mecard{ position:absolute; width:140px; height:auto; z-index:60; right:18px; top:18px; transform-origin:center center; animation:spinForever 3s linear infinite; cursor:pointer; transition:transform 500ms ease, left 500ms ease, top 500ms ease, opacity .2s }
 @keyframes spinForever{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 /* stars/particles */
-.stars{ position:absolute; inset:0; z-index:20; pointer-events:none }
 .star{ position:absolute; width:2px; height:2px; background:var(--star-color); border-radius:50%; animation:twinkle calc(2s / var(--anim-scale)) infinite ease-in-out }
 @keyframes twinkle{ 0%{opacity:.2}50%{opacity:1}100%{opacity:.2} }
-#particles{ position:absolute; inset:0; z-index:25; pointer-events:none }
 .particle{ position:absolute; width:3px; height:3px; background:var(--particle-color); border-radius:50%; animation:rise calc(6s / var(--anim-scale)) linear infinite }
 @keyframes rise{ 0%{transform:translateY(0);opacity:.4}100%{transform:translateY(-200px);opacity:0} }
 .symbol{ position:absolute; font-size:14px; opacity:.85; pointer-events:none; animation:riseSym calc(6s / var(--anim-scale)) linear infinite }
@@ -57,7 +58,7 @@ body{ margin:0; font-family:Inter, Arial, sans-serif; color:var(--text); backgro
 </style>
 </head>
 <body>
-<!-- Theme Editor toggle -->
+<!-- Theme Editor toggle (fixed & always visible) -->
 <button id="themeToggle" aria-controls="themePanel" aria-expanded="false" title="Theme Editor">⚙️ Theme Editor</button>
 <div id="themePanel" role="dialog" aria-label="Theme Editor">
   <div class="sr-only">Theme Editor</div>
@@ -87,11 +88,13 @@ body{ margin:0; font-family:Inter, Arial, sans-serif; color:var(--text); backgro
   <div style="display:flex; gap:8px; margin-top:6px;"><button class="resetBtn" id="applyReset">Reset</button><button class="resetBtn" id="closePanel">Close</button></div>
 </div>
 
-<!-- Banner and effect layers -->
+<!-- Overlays (cover the whole page) -->
+<div class="smoke" aria-hidden="true"></div>
+<div class="stars" id="stars"></div>
+<div id="particles"></div>
+
+<!-- Banner and images (on top of overlays) -->
 <div id="banner">
-  <div class="smoke" aria-hidden="true"></div>
-  <div class="stars" id="stars"></div>
-  <div id="particles"></div>
   <img src="images/BANNER1.jpeg" alt="Banner 1" loading="lazy">
   <img src="images/BANNER2.jpeg" alt="Banner 2" loading="lazy">
   <img src="images/BANNER3.jpeg" alt="Banner 3" loading="lazy">
@@ -99,12 +102,12 @@ body{ margin:0; font-family:Inter, Arial, sans-serif; color:var(--text); backgro
   <img src="images/BANNER5.jpeg" alt="Banner 5" loading="lazy">
   <img src="images/BANNER6.jpeg" alt="Banner 6" loading="lazy">
   <img src="images/BANNER7.jpeg" alt="Banner 7" loading="lazy">
-  <!-- mecard placeholder -->
+  <!-- mecard: positioned inside banner and floating -->
   <img id="mecard" src="images/MECARD.png" alt="Mecard" loading="lazy" tabindex="0" aria-label="Open founder links">
 </div>
 
-<!-- Founder modal -->
-<div id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderTitle">
+<!-- Founder modal (unchanged) -->
+<div id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderTitle" style="display:none;">
   <div id="founderCard">
     <img src="images/MECARD.png" class="founderImage" alt="Founder">
     <h2 id="founderTitle">CHRONIC SPACE FOUNDER</h2>
@@ -135,7 +138,7 @@ function makeStars(container, count){ container.innerHTML=''; const c = clampFor
 function makeParticles(container, count){ container.innerHTML=''; const c = clampForMobile(count||40); for(let i=0;i<c;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.top=(Math.random()*100)+'%'; p.style.animationDelay=(Math.random()*6)+'s'; container.appendChild(p); } }
 function makeSymbolParticles(container, count, char){ container.innerHTML=''; const c = clampForMobile(count||60); for(let i=0;i<c;i++){ const s=document.createElement('div'); s.className='symbol'; s.textContent=char; s.style.left=Math.random()*100+'%'; s.style.top=(Math.random()*100)+'%'; s.style.fontSize=(10 + Math.random()*22)+'px'; s.style.color = getComputedStyle(root).getPropertyValue('--accent') || '#fff'; s.style.animationDelay=(Math.random()*6)+'s'; container.appendChild(s); } }
 
-// Pattern application for main banner
+// Pattern application for whole page (overlays)
 function setPattern(name, symbolChar){ smoke.style.opacity = (name==='starfield' || name==='none')?0:0.12; smoke.style.backgroundImage='none'; particlesEl.innerHTML=''; starsEl.innerHTML=''; switch(name){
   case 'starfield': makeStars(starsEl, parseInt(document.getElementById('starDensity').value)); makeParticles(particlesEl, parseInt(document.getElementById('particleDensity').value)); break;
   case 'nebula': smoke.style.backgroundImage = "url('https://i.imgur.com/8fK4h7R.png')"; smoke.style.opacity=0.16; makeStars(starsEl, 90); makeParticles(particlesEl, 48); break;
@@ -197,7 +200,7 @@ document.getElementById('closePanel').addEventListener('click', ()=>{ themePanel
 // close on Escape
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(themePanel.classList.contains('open')){ themePanel.classList.remove('open'); themeToggle.setAttribute('aria-expanded','false'); themeToggle.focus(); } if(document.getElementById('founderModal').style.display==='flex'){ document.getElementById('founderModal').style.display='none'; } } });
 
-// mecard basic behavior (kept simple for now)
+// mecard behavior: float INSIDE banner only
 const mecardEl = document.getElementById('mecard'); let floating=true; function randomFloatInBanner(){ if(!floating) return; const bw=banner.clientWidth, bh=banner.clientHeight; const mW=mecardEl.clientWidth, mH=mecardEl.clientHeight; const padding=8; const left = Math.random()*(bw - mW - padding*2) + padding; const top = Math.random()*(bh - mH - padding*2) + padding; mecardEl.style.left = left + 'px'; mecardEl.style.top = top + 'px'; setTimeout(randomFloatInBanner, 2200); }
 randomFloatInBanner();
 
