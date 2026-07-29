@@ -12,6 +12,8 @@
         --layout-width: 900px;
         --star-color: #ffffff;
         --particle-color: cyan;
+        --brightness: 1;
+        --anim-scale: 1;
     }
 
     /* CONTROLLER (hidden by default, toggled by the tool button) */
@@ -22,18 +24,21 @@
         background: rgba(0,0,0,0.9);
         padding: 20px;
         border-radius: var(--radius);
-        width: 300px;
+        width: 340px;
         z-index: 999;
         box-shadow: 0 0 var(--shadow) rgba(0,0,0,0.6);
         border: 1px solid rgba(255,255,255,0.06);
-        transform: translateX(340px); /* hide off-screen */
+        transform: translateX(380px); /* hide off-screen */
         transition: transform 280ms ease;
         backdrop-filter: blur(6px);
+        color: var(--text);
     }
 
     .controller.open {
         transform: translateX(0);
     }
+
+    .controller h3 { margin:0 0 8px 0; font-size:14px; }
 
     .controller label {
         font-size: 13px;
@@ -47,7 +52,7 @@
     .controller select,
     .controller button {
         width: 100%;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
     }
 
     .controller .row { display:flex; gap:8px; }
@@ -91,7 +96,15 @@
         overflow-x: hidden;
         font-family: Arial, sans-serif;
         color: var(--text);
+        filter: brightness(var(--brightness));
+        transition: background 400ms ease, filter 300ms ease, color 200ms ease;
     }
+
+    /* PATTERN CLASSES (for future per-theme rules) */
+    body.pattern-nebula .smoke { background-image: url('https://i.imgur.com/8fK4h7R.png'); }
+    body.pattern-grid .smoke { background-image: linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 40px 40px, 40px 40px; }
+    body.pattern-noise .smoke { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><filter id="n"><feTurbulence baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" fill="white"/></svg>'); opacity:0.06; }
+    body.pattern-starfield .smoke { background-image: none; }
 
     /* PARALLAX STARFIELD */
     .stars {
@@ -111,14 +124,10 @@
         background: var(--star-color);
         opacity: 0.8;
         border-radius: 50%;
-        animation: twinkle 2s infinite ease-in-out;
+        animation: twinkle calc(2s / var(--anim-scale)) infinite ease-in-out;
     }
 
-    @keyframes twinkle {
-        0% { opacity: 0.2; }
-        50% { opacity: 1; }
-        100% { opacity: 0.2; }
-    }
+    @keyframes twinkle { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
 
     /* FLOATING PARTICLES */
     .particle {
@@ -128,13 +137,10 @@
         background: var(--particle-color);
         opacity: 0.4;
         border-radius: 50%;
-        animation: rise 6s linear infinite;
+        animation: rise calc(6s / var(--anim-scale)) linear infinite;
     }
 
-    @keyframes rise {
-        0% { transform: translateY(0px); opacity: 0.4; }
-        100% { transform: translateY(-200px); opacity: 0; }
-    }
+    @keyframes rise { 0% { transform: translateY(0px); opacity: 0.4; } 100% { transform: translateY(-200px); opacity: 0; } }
 
     /* BANNER AREA */
     #banner {
@@ -166,19 +172,19 @@
     @keyframes wave { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
     @keyframes warp { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     @keyframes glitch { 0% { transform: translateX(0px); } 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(2px); } 100% { transform: translateX(0px); } }
-    @keyframes smoke { 0% { opacity: 0.1; transform: translateX(0px); } 50% { opacity: 0.25; transform: translateX(20px); } 100% { opacity: 0.1; transform: translateX(0px); } }
 
     .smoke {
         position: absolute;
         width: 100%;
         height: 100%;
-        background: url('https://i.imgur.com/8fK4h7R.png');
         background-size: cover;
         opacity: 0.12;
-        animation: smoke 12s infinite linear;
+        animation: smoke calc(12s / var(--anim-scale)) infinite linear;
         z-index: 5;
         pointer-events: none;
     }
+
+    @keyframes smoke { 0% { opacity: 0.1; transform: translateX(0px); } 50% { opacity: 0.25; transform: translateX(20px); } 100% { opacity: 0.1; transform: translateX(0px); } }
 
     /* MECARD FLOATING OBJECT */
     #mecard {
@@ -191,7 +197,7 @@
         filter: drop-shadow(0px 0px 15px var(--particle-color));
         cursor: pointer;
         transition: transform 1s ease, top 1s ease, left 1s ease;
-        animation: spinForever 3s linear infinite;
+        animation: spinForever calc(3s / var(--anim-scale)) linear infinite;
     }
 
     @keyframes spinForever { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -238,6 +244,33 @@
 <button id="controllerToggle" aria-controls="styleController" aria-expanded="false" title="Open style controller">🎛</button>
 <div class="controller" id="styleController" role="region" aria-label="Style controller">
     <div class="sr-only">Style controller</div>
+    <h3>Theme Presets</h3>
+    <label for="themeSelect">Choose a Theme</label>
+    <select id="themeSelect">
+        <option value="custom">Custom</option>
+        <option value="neon">Neon</option>
+        <option value="classic">Classic Dark</option>
+        <option value="solar">Solar</option>
+        <option value="pastel">Pastel</option>
+    </select>
+
+    <label for="patternSelect">Background Pattern</label>
+    <select id="patternSelect">
+        <option value="starfield">Starfield</option>
+        <option value="nebula">Nebula</option>
+        <option value="grid">Grid</option>
+        <option value="noise">Noise</option>
+    </select>
+
+    <label for="brightness">Brightness</label>
+    <input id="brightness" type="range" min="0.5" max="1.5" step="0.01" value="1">
+
+    <label for="animIntensity">Animation Intensity</label>
+    <input id="animIntensity" type="range" min="0.4" max="2" step="0.1" value="1">
+
+    <hr style="border-color: rgba(255,255,255,0.06);">
+
+    <h3>Quick Colors & Layout</h3>
     <label for="bg">Background Color</label>
     <input id="bg" type="color" value="#111111">
 
@@ -313,6 +346,70 @@
 </div>
 
 <script>
+    /* THEME PRESETS */
+    const THEMES = {
+        neon: {
+            name:'neon',
+            bg: '#05060a',
+            text: '#e8f7ff',
+            accent: '#00ffd5',
+            radius: 14,
+            shadow: 28,
+            glow: 12,
+            layoutWidth: 1000,
+            starDensity: 200,
+            particleDensity: 90,
+            starColor: '#fff',
+            particleColor: '#00ffd5',
+            pattern: 'nebula'
+        },
+        classic: {
+            name:'classic',
+            bg: '#0b0b0b',
+            text: '#ffffff',
+            accent: '#4a9eff',
+            radius: 10,
+            shadow: 18,
+            glow: 4,
+            layoutWidth: 900,
+            starDensity: 140,
+            particleDensity: 40,
+            starColor: '#ffffff',
+            particleColor: 'cyan',
+            pattern: 'starfield'
+        },
+        solar: {
+            name:'solar',
+            bg: '#1b1207',
+            text: '#fff6e6',
+            accent: '#ffb86b',
+            radius: 8,
+            shadow: 8,
+            glow: 6,
+            layoutWidth: 900,
+            starDensity: 90,
+            particleDensity: 20,
+            starColor: '#fffbdf',
+            particleColor: '#ffcc88',
+            pattern: 'noise'
+        },
+        pastel: {
+            name:'pastel',
+            bg: '#f4f7ff',
+            text: '#0b1330',
+            accent: '#a78bfa',
+            radius: 18,
+            shadow: 6,
+            glow: 0,
+            layoutWidth: 1100,
+            starDensity: 40,
+            particleDensity: 10,
+            starColor: '#001122',
+            particleColor: '#a78bfa',
+            pattern: 'grid'
+        }
+    };
+
     /* STARFIELD */
     const starContainer = document.getElementById("stars");
     function makeStars(count) {
@@ -341,87 +438,83 @@
         }
     }
 
-    /* RANDOMIZED BANNER ANIMATIONS */
-    const animations = [
-        "shimmer 4s infinite ease-in-out",
-        "drift 6s infinite ease-in-out",
-        "pulse 5s infinite ease-in-out",
-        "wave 6s infinite ease-in-out",
-        "warp 5s infinite ease-in-out",
-        "glitch 1s infinite ease-in-out",
-    ];
+    /* RANDOMIZED BANNER ANIMATIONS (durations adjusted by animScale) */
+    function buildAnimations(scale) {
+        const base = [
+            ["shimmer", 4],
+            ["drift", 6],
+            ["pulse", 5],
+            ["wave", 6],
+            ["warp", 5],
+            ["glitch", 1]
+        ];
+        return base.map(([name, dur]) => `${name} ${Math.max(0.2, dur/scale)}s infinite ease-in-out`);
+    }
 
     const banners = document.querySelectorAll("#banner img");
     let current = 0;
+    let bannerInterval;
 
-    function showBanner() {
-        banners.forEach((b) => {
-            b.classList.remove("active");
-            b.style.animation = "";
-        });
-
+    function showBanner(animScale=1) {
+        banners.forEach((b) => { b.classList.remove("active"); b.style.animation = ""; });
         const banner = banners[current];
         if (!banner) return;
         banner.classList.add("active");
-
+        const animations = buildAnimations(animScale);
         const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
         banner.style.animation = randomAnimation;
-
         current = (current + 1) % banners.length;
     }
 
-    showBanner();
-    setInterval(showBanner, 5000);
+    function startBannerLoop(animScale=1) {
+        clearInterval(bannerInterval);
+        showBanner(animScale);
+        bannerInterval = setInterval(()=> showBanner(animScale), 5000);
+    }
 
-    /* RANDOM FLOATING PATH FOR MECARD */
+    startBannerLoop(1);
+
+    /* MECARD FLOATING OBJECT */
     const mecard = document.getElementById("mecard");
     let floating = true;
     let floatTimer;
 
     function randomFloat() {
         if (!floating) return;
-
         const randTop = Math.random() * 70 + 10;
         const randLeft = Math.random() * 80 + 10;
-
         mecard.style.top = randTop + "%";
         mecard.style.left = randLeft + "%";
-
         floatTimer = setTimeout(randomFloat, 2000);
     }
 
     randomFloat();
 
-    /* CLICK TO FREEZE + ZOOM + OPEN MENU */
     mecard.addEventListener("click", () => {
         floating = false;
         clearTimeout(floatTimer);
-
         mecard.style.transition = "transform 1s ease, top 1s ease, left 1s ease";
         mecard.style.top = "50%";
         mecard.style.left = "50%";
         mecard.style.transform = "translate(-50%, -50%) scale(1.35) rotate(0deg)";
         mecard.style.zIndex = "2001";
-
-        setTimeout(() => {
-            document.getElementById("founderModal").style.display = "flex";
-            document.getElementById("closeFounder").focus();
-        }, 600);
+        setTimeout(() => { document.getElementById("founderModal").style.display = "flex"; document.getElementById("closeFounder").focus(); }, 600);
     });
 
-    /* CLOSE MENU + RETURN TO CHAOS */
     document.getElementById("closeFounder").addEventListener("click", () => {
         document.getElementById("founderModal").style.display = "none";
-
         mecard.style.transform = "scale(1)";
-        floating = true;
-        randomFloat();
+        floating = true; randomFloat();
     });
 
     /* CONTROLLER LOGIC */
     const root = document.documentElement;
-
+    const body = document.body;
     const controls = {
+        themeSelect: document.getElementById('themeSelect'),
+        patternSelect: document.getElementById('patternSelect'),
+        brightness: document.getElementById('brightness'),
+        animIntensity: document.getElementById('animIntensity'),
         bg: document.getElementById('bg'),
         text: document.getElementById('text'),
         accent: document.getElementById('accent'),
@@ -433,7 +526,6 @@
         particleDensity: document.getElementById('particleDensity'),
     };
 
-    // Apply a settings object to the CSS variables and UI
     function applySettings(s) {
         if (!s) return;
         if (s.bg) root.style.setProperty('--bg', s.bg);
@@ -446,7 +538,7 @@
         if (s.starColor) root.style.setProperty('--star-color', s.starColor);
         if (s.particleColor) root.style.setProperty('--particle-color', s.particleColor);
 
-        // Update UI inputs to match
+        // Update UI inputs to match where appropriate
         if (controls.bg && s.bg) controls.bg.value = s.bg;
         if (controls.text && s.text) controls.text.value = s.text;
         if (controls.accent && s.accent) controls.accent.value = s.accent;
@@ -458,8 +550,46 @@
         if (controls.particleDensity && typeof s.particleDensity !== 'undefined') controls.particleDensity.value = s.particleDensity;
     }
 
+    function applyThemeByName(name) {
+        if (!name || name === 'custom') return;
+        const t = THEMES[name];
+        if (!t) return;
+        applySettings(t);
+        // body class for theme and pattern
+        Object.keys(THEMES).forEach(k => body.classList.remove('theme-'+k));
+        body.classList.add('theme-'+t.name);
+        // apply pattern
+        setPattern(t.pattern || 'starfield');
+        // stars/particles
+        makeStars(t.starDensity || 150);
+        makeParticles(t.particleDensity || 60);
+    }
+
+    function setPattern(name) {
+        // remove existing pattern-* classes
+        ['nebula','grid','noise','starfield'].forEach(p => body.classList.remove('pattern-'+p));
+        const p = name || controls.patternSelect.value || 'starfield';
+        body.classList.add('pattern-'+p);
+        // special handling: if starfield, keep smoke transparent else show overlay opacity
+        const smoke = document.querySelector('.smoke');
+        if (!smoke) return;
+        switch(p){
+            case 'nebula': smoke.style.backgroundImage = "url('https://i.imgur.com/8fK4h7R.png')"; smoke.style.opacity=0.12; break;
+            case 'grid': smoke.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px)"; smoke.style.backgroundSize='40px 40px,40px 40px'; smoke.style.opacity=0.06; break;
+            case 'noise': smoke.style.backgroundImage = "url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\'><filter id=\'n\'><feTurbulence baseFrequency=\'0.8\' numOctaves=\'2\' stitchTiles=\'stitch\'/></filter><rect width=\'100%\' height=\'100%\' filter=\'url(%23n)\' fill=\'white\'/></svg>')"; smoke.style.opacity=0.06; break;
+            default: smoke.style.backgroundImage='none'; smoke.style.opacity=0.0; break;
+        }
+    }
+
+    function setBrightness(v) { root.style.setProperty('--brightness', v); }
+    function setAnimScale(v) { root.style.setProperty('--anim-scale', v); startBannerLoop(v); document.querySelectorAll('.star').forEach(s => s.style.animationDuration = (2 / v) + 's'); document.querySelectorAll('.particle').forEach(p => p.style.animationDuration = (6 / v) + 's'); document.getElementById('mecard').style.animationDuration = (3 / v) + 's'; }
+
     function readUI() {
         return {
+            theme: controls.themeSelect.value,
+            pattern: controls.patternSelect.value,
+            brightness: parseFloat(controls.brightness.value),
+            animIntensity: parseFloat(controls.animIntensity.value),
             bg: controls.bg.value,
             text: controls.text.value,
             accent: controls.accent.value,
@@ -469,12 +599,9 @@
             layoutWidth: parseInt(controls.layoutWidth.value,10),
             starDensity: parseInt(controls.starDensity.value,10),
             particleDensity: parseInt(controls.particleDensity.value,10),
-            starColor: getComputedStyle(root).getPropertyValue('--star-color').trim(),
-            particleColor: getComputedStyle(root).getPropertyValue('--particle-color').trim(),
         };
     }
 
-    // Persist to localStorage
     function saveTheme() {
         const data = readUI();
         localStorage.setItem('chronicTheme', JSON.stringify(data));
@@ -484,24 +611,38 @@
     function loadTheme() {
         const raw = localStorage.getItem('chronicTheme');
         if (!raw) return null;
-        try { return JSON.parse(raw); } catch(e) { return null; }
+        try { return JSON.parse(raw); } catch(e){ return null; }
     }
 
     function resetTheme() {
-        const defaults = { bg: '#111111', text:'#ffffff', accent:'#4a9eff', radius:12, shadow:20, glow:0, layoutWidth:900, starDensity:150, particleDensity:60 };
-        applySettings(defaults);
-        makeStars(defaults.starDensity);
-        makeParticles(defaults.particleDensity);
         localStorage.removeItem('chronicTheme');
+        // apply classic defaults
+        applyThemeByName('classic');
+        controls.themeSelect.value = 'classic';
+        controls.brightness.value = 1;
+        setBrightness(1);
+        controls.animIntensity.value = 1;
+        setAnimScale(1);
     }
 
-    // Wire up inputs
-    Object.keys(controls).forEach(key => {
-        const el = controls[key];
+    // wire up simple UI events
+    controls.themeSelect.addEventListener('change', (e)=>{
+        const v = e.target.value;
+        if (v === 'custom') return; // don't override custom
+        applyThemeByName(v);
+    });
+
+    controls.patternSelect.addEventListener('change', (e)=> setPattern(e.target.value));
+    controls.brightness.addEventListener('input', (e)=> setBrightness(e.target.value));
+    controls.animIntensity.addEventListener('input', (e)=> setAnimScale(e.target.value));
+
+    // existing color/layout controls
+    ['bg','text','accent','radius','shadow','glow','layoutWidth','starDensity','particleDensity'].forEach(k=>{
+        const el = controls[k];
         if (!el) return;
-        el.addEventListener('input', () => {
+        el.addEventListener('input', ()=>{
             const v = el.value;
-            switch(key){
+            switch(k){
                 case 'bg': root.style.setProperty('--bg', v); break;
                 case 'text': root.style.setProperty('--text', v); break;
                 case 'accent': root.style.setProperty('--accent', v); break;
@@ -512,59 +653,34 @@
                 case 'starDensity': makeStars(parseInt(v,10)); break;
                 case 'particleDensity': makeParticles(parseInt(v,10)); break;
             }
-            // live-preview: keep star/particle colors consistent
         });
     });
 
     document.getElementById('saveTheme').addEventListener('click', saveTheme);
     document.getElementById('resetTheme').addEventListener('click', resetTheme);
 
-    // Export / import simple JSON
+    // Export / import
     document.getElementById('exportTheme').addEventListener('click', ()=>{
         const data = readUI();
         const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'chronic-theme.json';
-        document.body.appendChild(a); a.click(); a.remove();
-        URL.revokeObjectURL(url);
+        const a = document.createElement('a'); a.href=url; a.download='chronic-theme.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     });
 
-    document.getElementById('importTheme').addEventListener('click', ()=>{
-        document.getElementById('importData').click();
-    });
-
+    document.getElementById('importTheme').addEventListener('click', ()=> document.getElementById('importData').click());
     document.getElementById('importData').addEventListener('change', (e)=>{
-        const f = e.target.files[0];
-        if (!f) return;
-        const r = new FileReader();
-        r.onload = () => {
-            try {
-                const obj = JSON.parse(r.result);
-                applySettings(obj);
-                if (obj.starDensity) makeStars(obj.starDensity);
-                if (obj.particleDensity) makeParticles(obj.particleDensity);
-                alert('Imported theme applied');
-            } catch(err){ alert('Invalid theme file'); }
-        };
-        r.readAsText(f);
+        const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ()=>{ try{ const obj = JSON.parse(r.result); if (obj.theme && obj.theme !== 'custom') { controls.themeSelect.value = obj.theme; applyThemeByName(obj.theme); } else { applySettings(obj); if (obj.starDensity) makeStars(obj.starDensity); if (obj.particleDensity) makeParticles(obj.particleDensity); } if (obj.pattern) controls.patternSelect.value = obj.pattern; setPattern(obj.pattern); if (obj.brightness) { controls.brightness.value = obj.brightness; setBrightness(obj.brightness); } if (obj.animIntensity) { controls.animIntensity.value = obj.animIntensity; setAnimScale(obj.animIntensity); } alert('Imported theme applied'); }catch(err){ alert('Invalid theme file'); } }; r.readAsText(f);
     });
 
-    // Toggle controller with the tool button
+    // Controller open/close
     const toggle = document.getElementById('controllerToggle');
     const controller = document.getElementById('styleController');
     toggle.addEventListener('click', ()=>{
         const open = controller.classList.toggle('open');
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        if (open) {
-            // move focus into controller for keyboard users
-            controller.querySelector('input, button, select').focus();
-        } else {
-            toggle.focus();
-        }
+        if (open) controller.querySelector('select, input, button').focus(); else toggle.focus();
     });
 
-    // Close panel with Escape
     document.addEventListener('keydown', (e)=>{
         if (e.key === 'Escape') {
             if (controller.classList.contains('open')) { controller.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); toggle.focus(); }
@@ -572,36 +688,28 @@
         }
     });
 
-    // initialize from saved theme or inputs
+    // initialize
     (function init(){
         const saved = loadTheme();
         if (saved) {
-            applySettings(saved);
-            makeStars(saved.starDensity || 150);
-            makeParticles(saved.particleDensity || 60);
+            // if theme preset
+            if (saved.theme && saved.theme !== 'custom') { controls.themeSelect.value = saved.theme; applyThemeByName(saved.theme); }
+            else { applySettings(saved); makeStars(saved.starDensity || 150); makeParticles(saved.particleDensity || 60); }
+            if (saved.pattern) { controls.patternSelect.value = saved.pattern; setPattern(saved.pattern); }
+            if (saved.brightness) { controls.brightness.value = saved.brightness; setBrightness(saved.brightness); }
+            if (saved.animIntensity) { controls.animIntensity.value = saved.animIntensity; setAnimScale(saved.animIntensity); }
         } else {
-            // apply defaults from UI values
-            applySettings({
-                bg: controls.bg.value,
-                text: controls.text.value,
-                accent: controls.accent.value,
-                radius: parseInt(controls.radius.value,10),
-                shadow: parseInt(controls.shadow.value,10),
-                glow: parseInt(controls.glow.value,10),
-                layoutWidth: parseInt(controls.layoutWidth.value,10),
-                starDensity: parseInt(controls.starDensity.value,10),
-                particleDensity: parseInt(controls.particleDensity.value,10),
-            });
-            makeStars(parseInt(controls.starDensity.value,10));
-            makeParticles(parseInt(controls.particleDensity.value,10));
+            // apply default preset
+            controls.themeSelect.value = 'classic';
+            applyThemeByName('classic');
+            controls.brightness.value = 1; setBrightness(1);
+            controls.animIntensity.value = 1; setAnimScale(1);
         }
     })();
 
-    // small tweak: respect prefers-reduced-motion
+    // respect prefers-reduced-motion
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (media.matches) {
-        document.querySelectorAll('*').forEach(el=>el.style.animation = 'none');
-    }
+    if (media.matches) document.querySelectorAll('*').forEach(el=>el.style.animation = 'none');
 
 </script>
 
