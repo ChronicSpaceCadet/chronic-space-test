@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Chronic Space — Cosmic Engine</title>
 <style>
 :root{
@@ -14,13 +14,43 @@
   --brightness:1;
   --anim-scale:1;
 }
-/* Theme Editor UI */
+/* Theme Editor UI (fixed and always visible) */
 #themeToggle{
-  position:fixed; right:20px; bottom:20px; z-index:99999; display:flex; align-items:center; gap:10px;
-  padding:10px 14px; border-radius:999px; background:linear-gradient(135deg,var(--accent),#7fb8ff);
-  color:#000; font-weight:700; border:none; cursor:pointer; box-shadow:0 8px 28px rgba(0,0,0,.5);
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:linear-gradient(135deg,var(--accent),#7fb8ff);
+  color:#000;
+  font-weight:700;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 8px 28px rgba(0,0,0,.5);
 }
-#themePanel{ position:fixed; right:20px; bottom:96px; width:360px; padding:12px; background:linear-gradient(180deg, rgba(8,8,8,0.98), rgba(12,12,12,0.95)); border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.6); color:var(--text); z-index:14000; transform-origin:100% 100%; opacity:0; transform:translateY(8px) scale(.985); transition:all .16s ease; pointer-events:none }
+#themePanel{
+  position:fixed;
+  right:20px;
+  bottom:96px;
+  width:360px;
+  max-height:72vh;
+  overflow:auto;
+  padding:12px;
+  background:linear-gradient(180deg, rgba(8,8,8,0.98), rgba(12,12,12,0.95));
+  border-radius:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.6);
+  color:var(--text);
+  z-index:140000;
+  transform-origin:100% 100%;
+  opacity:0;
+  transform:translateY(8px) scale(.985);
+  transition:all .16s ease;
+  pointer-events:none;
+}
 #themePanel.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto }
 .theme-row{ display:flex; gap:8px; align-items:center }
 .thumbs{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:8px }
@@ -39,25 +69,41 @@ body{ margin:0; font-family:Inter, Arial, sans-serif; color:var(--text); backgro
 #banner{ position:relative; width:100%; height:55vh; min-height:320px; overflow:hidden; z-index:10; margin-top:40px }
 #banner img{ position:absolute; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.2s ease }
 #banner img.active{ opacity:1 }
-/* make overlays cover the whole viewport so "vibe" changes affect the page, not only the banner */
-.smoke{ position:fixed; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; background-size:cover; opacity:0.12; transition:opacity .28s ease }
-.stars{ position:fixed; inset:0; z-index:3; pointer-events:none }
-#particles{ position:fixed; inset:0; z-index:4; pointer-events:none }
-/* mecard kept inside banner */
+
+/* VIBE OVERLAY: separate layer for Theme Editor effects (covers viewport but sits behind main content)
+   This ensures the Theme Editor controls page 'vibe' without touching #banner animations or MECARD placement */
+.vibe-overlay{ position:fixed; inset:0; pointer-events:none; z-index:2; }
+.vibe-smoke{ position:absolute; inset:0; background-size:cover; opacity:0.12; transition:opacity .28s ease; }
+.vibe-stars{ position:absolute; inset:0; }
+.vibe-particles{ position:absolute; inset:0; }
+
+/* mecard positioned inside banner and floating/spinning */
 #mecard{ position:absolute; width:140px; height:auto; z-index:60; right:18px; top:18px; transform-origin:center center; animation:spinForever 3s linear infinite; cursor:pointer; transition:transform 500ms ease, left 500ms ease, top 500ms ease, opacity .2s }
 @keyframes spinForever{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-/* stars/particles */
+
+/* stars/particles (used inside .vibe-* layers) */
 .star{ position:absolute; width:2px; height:2px; background:var(--star-color); border-radius:50%; animation:twinkle calc(2s / var(--anim-scale)) infinite ease-in-out }
 @keyframes twinkle{ 0%{opacity:.2}50%{opacity:1}100%{opacity:.2} }
 .particle{ position:absolute; width:3px; height:3px; background:var(--particle-color); border-radius:50%; animation:rise calc(6s / var(--anim-scale)) linear infinite }
 @keyframes rise{ 0%{transform:translateY(0);opacity:.4}100%{transform:translateY(-200px);opacity:0} }
 .symbol{ position:absolute; font-size:14px; opacity:.85; pointer-events:none; animation:riseSym calc(6s / var(--anim-scale)) linear infinite }
 @keyframes riseSym{ 0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-220px);opacity:0} }
-/* responsive */
-@media(max-width:720px){ #themePanel{ width:92%; right:4%; bottom:84px } .thumb{ height:48px } }
+
+/* founder modal styling (ensure visible and labeled 'Founder links') */
+#founderModal{ position:fixed; inset:0; display:none; justify-content:center; align-items:center; background:rgba(0,0,0,0.85); z-index:140001 }
+#founderCard{ width:350px; background:linear-gradient(180deg,#0a0a0a,#111,#0a0a0a); border:3px solid cyan; border-radius:18px; padding:20px; text-align:center; box-shadow:0 0 25px cyan; }
+.founderImage{ width:100%; border-radius:12px; margin-bottom:15px; box-shadow:0 0 20px cyan }
+.socialRow{ display:flex; justify-content:space-around; margin:20px 0 }
+.socialIcon{ width:45px; height:45px; border-radius:50%; font-size:22px; display:flex; justify-content:center; align-items:center; cursor:pointer; color:white; font-weight:bold; transition:transform .3s ease, box-shadow .3s ease }
+.socialIcon:hover{ transform:scale(1.2); box-shadow:0 0 15px cyan }
+.closeFounderBtn{ background:cyan; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold; color:black }
+
+/* responsive tweaks */
+@media(max-width:720px){ #themePanel{ width:92%; right:4%; bottom:84px } .thumb{ height:48px } #mecard{ width:110px } }
 </style>
 </head>
 <body>
+
 <!-- Theme Editor toggle (fixed & always visible) -->
 <button id="themeToggle" aria-controls="themePanel" aria-expanded="false" title="Theme Editor">⚙️ Theme Editor</button>
 <div id="themePanel" role="dialog" aria-label="Theme Editor">
@@ -88,10 +134,12 @@ body{ margin:0; font-family:Inter, Arial, sans-serif; color:var(--text); backgro
   <div style="display:flex; gap:8px; margin-top:6px;"><button class="resetBtn" id="applyReset">Reset</button><button class="resetBtn" id="closePanel">Close</button></div>
 </div>
 
-<!-- Overlays (cover the whole page) -->
-<div class="smoke" aria-hidden="true"></div>
-<div class="stars" id="stars"></div>
-<div id="particles"></div>
+<!-- Vibe overlay: separate fixed layer for effects (behind main page content) -->
+<div class="vibe-overlay" aria-hidden="true">
+  <div class="vibe-smoke" id="vibeSmoke"></div>
+  <div class="vibe-stars" id="vibeStars"></div>
+  <div class="vibe-particles" id="vibeParticles"></div>
+</div>
 
 <!-- Banner and images (on top of overlays) -->
 <div id="banner">
@@ -106,27 +154,27 @@ body{ margin:0; font-family:Inter, Arial, sans-serif; color:var(--text); backgro
   <img id="mecard" src="images/MECARD.png" alt="Mecard" loading="lazy" tabindex="0" aria-label="Open founder links">
 </div>
 
-<!-- Founder modal (unchanged) -->
-<div id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderTitle" style="display:none;">
+<!-- Founder modal (labeled "Founder links") -->
+<div id="founderModal" role="dialog" aria-modal="true" aria-labelledby="founderTitle">
   <div id="founderCard">
     <img src="images/MECARD.png" class="founderImage" alt="Founder">
-    <h2 id="founderTitle">CHRONIC SPACE FOUNDER</h2>
+    <h2 id="founderTitle">Founder links</h2>
     <div class="socialRow">
       <div class="socialIcon fb" onclick="window.open('https://www.facebook.com/chroniccody','_blank')" aria-label="Facebook">f</div>
       <div class="socialIcon yt" onclick="window.open('https://www.youtube.com/@ChronicSpace','_blank')" aria-label="YouTube">▶</div>
       <div class="socialIcon x" onclick="window.open('https://x.com/AmaBurnSpace','_blank')" aria-label="X">X</div>
       <div class="socialIcon li" onclick="window.open('https://www.linkedin.com/in/founderchronicspace/','_blank')" aria-label="LinkedIn">in</div>
     </div>
-    <button id="closeFounder">CLOSE</button>
+    <button id="closeFounder" class="closeFounderBtn">CLOSE</button>
   </div>
 </div>
 
 <script>
 // Core elements
 const root = document.documentElement;
-const starsEl = document.getElementById('stars');
-const particlesEl = document.getElementById('particles');
-const smoke = document.querySelector('.smoke');
+const vibeSmoke = document.getElementById('vibeSmoke');
+const vibeStars = document.getElementById('vibeStars');
+const vibeParticles = document.getElementById('vibeParticles');
 const banner = document.getElementById('banner');
 let animScale = 1;
 
@@ -138,30 +186,51 @@ function makeStars(container, count){ container.innerHTML=''; const c = clampFor
 function makeParticles(container, count){ container.innerHTML=''; const c = clampForMobile(count||40); for(let i=0;i<c;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.top=(Math.random()*100)+'%'; p.style.animationDelay=(Math.random()*6)+'s'; container.appendChild(p); } }
 function makeSymbolParticles(container, count, char){ container.innerHTML=''; const c = clampForMobile(count||60); for(let i=0;i<c;i++){ const s=document.createElement('div'); s.className='symbol'; s.textContent=char; s.style.left=Math.random()*100+'%'; s.style.top=(Math.random()*100)+'%'; s.style.fontSize=(10 + Math.random()*22)+'px'; s.style.color = getComputedStyle(root).getPropertyValue('--accent') || '#fff'; s.style.animationDelay=(Math.random()*6)+'s'; container.appendChild(s); } }
 
-// Pattern application for whole page (overlays)
-function setPattern(name, symbolChar){ smoke.style.opacity = (name==='starfield' || name==='none')?0:0.12; smoke.style.backgroundImage='none'; particlesEl.innerHTML=''; starsEl.innerHTML=''; switch(name){
-  case 'starfield': makeStars(starsEl, parseInt(document.getElementById('starDensity').value)); makeParticles(particlesEl, parseInt(document.getElementById('particleDensity').value)); break;
-  case 'nebula': smoke.style.backgroundImage = "url('https://i.imgur.com/8fK4h7R.png')"; smoke.style.opacity=0.16; makeStars(starsEl, 90); makeParticles(particlesEl, 48); break;
-  case 'grid': smoke.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)"; smoke.style.backgroundSize='40px 40px,40px 40px'; smoke.style.opacity=0.06; break;
-  case 'noise': smoke.style.backgroundImage = "url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'><filter id=\'n\'><feTurbulence baseFrequency=\'0.9\' numOctaves=\'2\' stitchTiles=\'stitch\'/></filter><rect width=\'100%\' height=\'100%\' filter=\'url(%23n)\' fill=\'white\'/></svg>')"; smoke.style.opacity=0.06; break;
-  case 'fire': smoke.style.backgroundImage = "radial-gradient(circle at 50% 70%, rgba(255,140,0,0.45), rgba(255,40,0,0.18) 20%, transparent 45%)"; smoke.style.opacity=0.18; makeParticles(particlesEl, 40); break;
-  case 'symbols': makeSymbolParticles(particlesEl, parseInt(document.getElementById('particleDensity').value)||60, symbolChar||'★'); break;
-  case 'dollars': makeSymbolParticles(particlesEl, parseInt(document.getElementById('particleDensity').value)||80, '$'); break;
-  case 'none': default: // no overlays
-    break;
- }
+// Pattern application for the VIBE overlay only (does NOT change #banner or its animations)
+function setPattern(name, symbolChar){
+  // reset
+  vibeSmoke.style.backgroundImage = 'none';
+  vibeSmoke.style.opacity = (name==='starfield'||name==='none')?0:0.12;
+  vibeParticles.innerHTML='';
+  vibeStars.innerHTML='';
+
+  switch(name){
+    case 'starfield': makeStars(vibeStars, parseInt(document.getElementById('starDensity').value)); makeParticles(vibeParticles, parseInt(document.getElementById('particleDensity').value)); break;
+    case 'nebula': vibeSmoke.style.backgroundImage = "url('https://i.imgur.com/8fK4h7R.png')"; vibeSmoke.style.opacity=0.16; makeStars(vibeStars, 90); makeParticles(vibeParticles, 48); break;
+    case 'grid': vibeSmoke.style.backgroundImage = "linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)"; vibeSmoke.style.backgroundSize='40px 40px,40px 40px'; vibeSmoke.style.opacity=0.06; break;
+    case 'noise': vibeSmoke.style.backgroundImage = "url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'><filter id=\'n\'><feTurbulence baseFrequency=\'0.9\' numOctaves=\'2\' stitchTiles=\'stitch\'/></filter><rect width=\'100%\' height=\'100%\' filter=\'url(%23n)\' fill=\'white\'/></svg>')"; vibeSmoke.style.opacity=0.06; break;
+    case 'fire': vibeSmoke.style.backgroundImage = "radial-gradient(circle at 50% 70%, rgba(255,140,0,0.45), rgba(255,40,0,0.18) 20%, transparent 45%)"; vibeSmoke.style.opacity=0.18; makeParticles(vibeParticles, 40); break;
+    case 'symbols': makeSymbolParticles(vibeParticles, parseInt(document.getElementById('particleDensity').value)||60, symbolChar||'★'); break;
+    case 'dollars': makeSymbolParticles(vibeParticles, parseInt(document.getElementById('particleDensity').value)||80, '$'); break;
+    case 'none': default: break;
+  }
 }
 
-// Apply UI global vars
-function applyUI(){ root.style.setProperty('--bg', document.getElementById('bgColor').value); root.style.setProperty('--accent', document.getElementById('accentColor').value); root.style.setProperty('--brightness', document.getElementById('brightness').value); animScale = parseFloat(document.getElementById('animIntensity').value); document.querySelectorAll('.star').forEach(s=>s.style.animationDuration = (2/animScale)+'s'); document.querySelectorAll('.particle').forEach(p=>p.style.animationDuration = (6/animScale)+'s'); document.querySelectorAll('.symbol').forEach(s=>s.style.animationDuration = (6/animScale)+'s'); document.getElementById('mecard').style.animationDuration = (3/animScale)+'s'; }
+// Apply UI global vars (affects :root vars and animation scale)
+function applyUI(){
+  root.style.setProperty('--bg', document.getElementById('bgColor')?.value || getComputedStyle(root).getPropertyValue('--bg'));
+  root.style.setProperty('--accent', document.getElementById('accentColor')?.value || getComputedStyle(root).getPropertyValue('--accent'));
+  root.style.setProperty('--brightness', document.getElementById('brightness')?.value || getComputedStyle(root).getPropertyValue('--brightness'));
+  animScale = parseFloat(document.getElementById('animIntensity')?.value || 1);
+  // update animation durations on vibe elements
+  document.querySelectorAll('.vibe-stars .star, .vibe-particles .particle, .vibe-particles .symbol').forEach(el=>{ el.style.animationDuration = (6/animScale)+'s'; });
+}
 
 // initialize main
-(function initMain(){ setPattern('starfield'); applyUI(); // banner slideshow
-  const banners = banner.querySelectorAll('img'); let idx=0; function show(){ banners.forEach((b,i)=>b.classList.toggle('active', i===idx)); idx=(idx+1)%banners.length } show(); setInterval(show,5000);
+(function initMain(){
+  // Start with page-wide vibe starfield (but do not alter banner animations)
+  setPattern('starfield');
+  applyUI();
+  // banner slideshow (unchanged behavior)
+  const banners = banner.querySelectorAll('img'); let idx=0;
+  function show(){ banners.forEach((b,i)=>b.classList.toggle('active', i===idx)); idx=(idx+1)%banners.length }
+  show(); setInterval(show,5000);
 })();
 
 // Theme Editor interactions
-const themeToggle = document.getElementById('themeToggle'); const themePanel = document.getElementById('themePanel'); themeToggle.addEventListener('click', ()=>{ const open = themePanel.classList.toggle('open'); themeToggle.setAttribute('aria-expanded', open?'true':'false'); if(open) themePanel.querySelector('button, select, input').focus(); });
+const themeToggle = document.getElementById('themeToggle');
+const themePanel = document.getElementById('themePanel');
+themeToggle.addEventListener('click', ()=>{ const open = themePanel.classList.toggle('open'); themeToggle.setAttribute('aria-expanded', open?'true':'false'); if(open) themePanel.querySelector('button, select, input')?.focus(); });
 
 // thumbnails: generate mini previews inside each .mini using the same functions but scoped
 function buildThumbs(){ document.querySelectorAll('[data-mini]').forEach(elem=>{ const type = elem.getAttribute('data-mini'); elem.innerHTML=''; const miniStars = document.createElement('div'); miniStars.style.position='absolute'; miniStars.style.inset='0'; miniStars.style.overflow='hidden'; miniStars.className='mini-stars'; const miniParts = document.createElement('div'); miniParts.style.position='absolute'; miniParts.style.inset='0'; miniParts.className='mini-parts'; elem.appendChild(miniStars); elem.appendChild(miniParts); switch(type){
@@ -173,12 +242,11 @@ function buildThumbs(){ document.querySelectorAll('[data-mini]').forEach(elem=>{
     case 'symbols': makeSymbolParticles(miniParts, 12, '★'); break;
     case 'dollars': makeSymbolParticles(miniParts, 12, '$'); break;
     default: break;
-  }
- }); }
+  } }); }
 buildThumbs();
 
-// Click handlers: apply effect to main
-document.getElementById('thumbGrid').addEventListener('click', e=>{ const b = e.target.closest('.thumb'); if(!b) return; const effect = b.getAttribute('data-effect'); const symbol = document.getElementById('symbolChar').value; setPattern(effect, symbol); applyUI(); });
+// Click handlers: apply effect to VIBE overlay only
+document.getElementById('thumbGrid').addEventListener('click', e=>{ const b = e.target.closest('.thumb'); if(!b) return; const effect = b.getAttribute('data-effect'); const symbol = document.getElementById('symbolChar')?.value || '★'; setPattern(effect, symbol); applyUI(); lastPattern = effect; });
 
 // presets
 document.querySelectorAll('.preset').forEach(p=>p.addEventListener('click', ()=>{ const which=p.getAttribute('data-preset'); if(which==='neon'){ document.getElementById('bgColor').value='#04040a'; document.getElementById('accentColor').value='#00ffd5'; document.getElementById('brightness').value=1.05; document.getElementById('animIntensity').value=1.3; document.getElementById('starDensity').value=200; document.getElementById('particleDensity').value=90; setPattern('starfield'); }
@@ -188,28 +256,40 @@ document.querySelectorAll('.preset').forEach(p=>p.addEventListener('click', ()=>
 
 // controls live updates
 ['bgColor','accentColor','brightness','animIntensity','starDensity','particleDensity','symbolChar'].forEach(id=>{ const el=document.getElementById(id); if(!el) return; el.addEventListener('input', ()=>{ applyUI(); // if densities changed, reapply current pattern
-    const activePattern = (typeof lastPattern !== 'undefined')?lastPattern:'starfield'; if(id==='starDensity') makeStars(starsEl, parseInt(el.value)); if(id==='particleDensity') setPattern(activePattern, document.getElementById('symbolChar').value); }); });
+    const activePattern = (typeof lastPattern !== 'undefined')?lastPattern:'starfield'; if(id==='starDensity') makeStars(vibeStars, parseInt(el.value)); if(id==='particleDensity') setPattern(activePattern, document.getElementById('symbolChar')?.value); }); });
 
-let lastPattern='starfield'; // track
-const thumbButtons = document.querySelectorAll('.thumb'); thumbButtons.forEach(b => b.addEventListener('click', ()=>{ lastPattern = b.getAttribute('data-effect'); }));
+let lastPattern='starfield';
 
 // reset/close
 document.getElementById('applyReset').addEventListener('click', ()=>{ document.getElementById('bgColor').value='#0a0a0a'; document.getElementById('accentColor').value='#4a9eff'; document.getElementById('brightness').value=1; document.getElementById('animIntensity').value=1; document.getElementById('starDensity').value=150; document.getElementById('particleDensity').value=60; document.getElementById('symbolChar').value='★'; setPattern('starfield'); applyUI(); });
+
 document.getElementById('closePanel').addEventListener('click', ()=>{ themePanel.classList.remove('open'); themeToggle.setAttribute('aria-expanded','false'); themeToggle.focus(); });
 
 // close on Escape
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(themePanel.classList.contains('open')){ themePanel.classList.remove('open'); themeToggle.setAttribute('aria-expanded','false'); themeToggle.focus(); } if(document.getElementById('founderModal').style.display==='flex'){ document.getElementById('founderModal').style.display='none'; } } });
 
-// mecard behavior: float INSIDE banner only
-const mecardEl = document.getElementById('mecard'); let floating=true; function randomFloatInBanner(){ if(!floating) return; const bw=banner.clientWidth, bh=banner.clientHeight; const mW=mecardEl.clientWidth, mH=mecardEl.clientHeight; const padding=8; const left = Math.random()*(bw - mW - padding*2) + padding; const top = Math.random()*(bh - mH - padding*2) + padding; mecardEl.style.left = left + 'px'; mecardEl.style.top = top + 'px'; setTimeout(randomFloatInBanner, 2200); }
-randomFloatInBanner();
+// MECARD behavior: ensure it is a child of banner and floats INSIDE banner only
+const mecardEl = document.getElementById('mecard');
+if(mecardEl && banner && mecardEl.parentNode !== banner){ banner.appendChild(mecardEl); }
+let floating=true;
+function randomFloatInBanner(){ if(!floating) return; const bw=banner.clientWidth, bh=banner.clientHeight; const mW=mecardEl.clientWidth||140, mH=mecardEl.clientHeight||140; const padding=8; const left = Math.random()*(bw - mW - padding*2) + padding; const top = Math.random()*(bh - mH - padding*2) + padding; mecardEl.style.left = left + 'px'; mecardEl.style.top = top + 'px'; mecardEl.style.position='absolute'; setTimeout(randomFloatInBanner, 2200); }
+// start floating after a short delay so layout settles
+setTimeout(randomFloatInBanner, 200);
 
-mecardEl.addEventListener('click', ()=>{ floating=false; mecardEl.style.opacity='0'; mecardEl.style.pointerEvents='none'; setTimeout(()=>{ mecardEl.style.display='none'; },200); document.getElementById('founderModal').style.display='flex'; });
+mecardEl.addEventListener('click', ()=>{
+  floating=false;
+  mecardEl.style.opacity='0';
+  mecardEl.style.pointerEvents='none';
+  setTimeout(()=>{ mecardEl.style.display='none'; },200);
+  // open founder modal
+  const modal = document.getElementById('founderModal');
+  if(modal){ modal.style.display='flex'; }
+});
 
-document.getElementById('closeFounder').addEventListener('click', ()=>{ document.getElementById('founderModal').style.display='none'; mecardEl.style.display='block'; setTimeout(()=>{ mecardEl.style.opacity='1'; mecardEl.style.pointerEvents='auto'; floating=true; randomFloatInBanner(); },40); });
+document.getElementById('closeFounder').addEventListener('click', ()=>{ const modal = document.getElementById('founderModal'); if(modal){ modal.style.display='none'; } mecardEl.style.display='block'; setTimeout(()=>{ mecardEl.style.opacity='1'; mecardEl.style.pointerEvents='auto'; floating=true; randomFloatInBanner(); },40); });
 
 // ensure mecard stays visible on resize
-window.addEventListener('resize', ()=>{ const bw=banner.clientWidth, bh=banner.clientHeight, mW=mecardEl.clientWidth, mH=mecardEl.clientHeight; const left = parseFloat(mecardEl.style.left)||0; const top = parseFloat(mecardEl.style.top)||0; const clampedLeft = Math.min(Math.max(8, left), bw-mW-8); const clampedTop = Math.min(Math.max(8, top), bh-mH-8); mecardEl.style.left = clampedLeft+'px'; mecardEl.style.top = clampedTop+'px'; });
+window.addEventListener('resize', ()=>{ const bw=banner.clientWidth, bh=banner.clientHeight, mW=mecardEl.clientWidth||140, mH=mecardEl.clientHeight||140; const left = parseFloat(mecardEl.style.left)||0; const top = parseFloat(mecardEl.style.top)||0; const clampedLeft = Math.min(Math.max(8, left), bw-mW-8); const clampedTop = Math.min(Math.max(8, top), bh-mH-8); mecardEl.style.left = clampedLeft+'px'; mecardEl.style.top = clampedTop+'px'; });
 
 </script>
 </body>
